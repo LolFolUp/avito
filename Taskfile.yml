@@ -1,0 +1,116 @@
+version: "3"
+
+vars:
+  DATABASE_URL: '{{default "postgres://kitchen:kitchen@localhost:5432/kitchen?sslmode=disable" .DATABASE_URL}}'
+
+tasks:
+  gen:
+    desc: Generate REST, gRPC and test mock code
+    deps:
+      - gen:openapi
+      - gen:proto
+      - gen:mocks
+
+  gen:openapi:
+    desc: Generate Kitchen REST server code from OpenAPI
+    sources:
+      - shared/api/kitchen/v1/openapi.yaml
+      - shared/api/kitchen/v1/ogen.yaml
+    generates:
+      - shared/pkg/openapi/kitchen/v1/**/*.go
+    cmds:
+      - go tool ogen --config shared/api/kitchen/v1/ogen.yaml --target shared/pkg/openapi/kitchen/v1 --package kitchenv1 --clean shared/api/kitchen/v1/openapi.yaml
+
+  gen:proto:
+    desc: Lint Protobuf contracts and generate Partner gRPC code
+    sources:
+      - shared/proto/**/*.proto
+      - buf.yaml
+      - buf.gen.yaml
+    generates:
+      - shared/pkg/proto/partner/v1/*.go
+    cmds:
+      - go tool buf lint
+      - go tool buf generate
+
+  gen:mocks:
+    desc: Generate mocks from dependency interfaces
+    sources:
+      - kitchen/internal/api/kitchen/v1/deps.go
+      - kitchen/internal/api/partner/v1/deps.go
+      - kitchen/internal/service/catalog/deps.go
+      - kitchen/internal/service/order/deps.go
+      - restaurant-demo/internal/service/restaurant/deps.go
+    generates:
+      - kitchen/internal/api/kitchen/v1/mocks/deps.go
+      - kitchen/internal/api/partner/v1/mocks/deps.go
+      - kitchen/internal/service/catalog/mocks/deps.go
+      - kitchen/internal/service/order/mocks/deps.go
+      - restaurant-demo/internal/service/restaurant/mocks/deps.go
+    cmds:
+      - go tool mockgen -source=kitchen/internal/api/kitchen/v1/deps.go -destination=kitchen/internal/api/kitchen/v1/mocks/deps.go -package=mocks
+      - go tool mockgen -source=kitchen/internal/api/partner/v1/deps.go -destination=kitchen/internal/api/partner/v1/mocks/deps.go -package=mocks
+      - go tool mockgen -source=kitchen/internal/service/catalog/deps.go -destination=kitchen/internal/service/catalog/mocks/deps.go -package=mocks
+      - go tool mockgen -source=kitchen/internal/service/order/deps.go -destination=kitchen/internal/service/order/mocks/deps.go -package=mocks
+      - go tool mockgen -source=restaurant-demo/internal/service/restaurant/deps.go -destination=restaurant-demo/internal/service/restaurant/mocks/deps.go -package=mocks
+
+  up:
+    desc: Build and start the complete local stack
+    cmds:
+      - docker compose up --build -d
+
+  db:up:
+    desc: Start only local PostgreSQL
+    cmds:
+      - docker compose up -d postgres
+
+  build:
+    desc: Build application images
+    cmds:
+      - docker compose build
+
+  down:
+    desc: Stop local services without deleting data
+    cmds:
+      - docker compose down
+
+  logs:
+    desc: Follow local service logs
+    cmds:
+      - docker compose logs -f
+
+  migrate:
+    desc: Apply all database migrations
+    cmds:
+      - docker compose run --rm migrate
+
+  migrate:down:
+    desc: Roll back the latest database migration
+    cmds:
+      - go tool goose -dir db/migrations postgres "{{.DATABASE_URL}}" down
+
+  migrate:status:
+    desc: Show database migration status
+    cmds:
+      - go tool goose -dir db/migrations postgres "{{.DATABASE_URL}}" status
+
+  test:
+    desc: Run unit tests
+    cmds:
+      - go test ./...
+
+  test:integration:
+    desc: Run PostgreSQL repository integration tests
+    cmds:
+      - go test -tags=integration ./kitchen/internal/repository/kitchen
+
+  test:e2e:
+    desc: Run end-to-end tests against a running Compose stack
+    cmds:
+      - go test -tags=e2e ./tests/e2e
+
+  lint:
+    desc: Run static and contract checks
+    cmds:
+      - go vet ./...
+      - go tool buf lint
