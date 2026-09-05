@@ -1,0 +1,11 @@
+description: Ресурс не найден
+content:
+  application/problem+json:
+    schema:
+      $ref: ../errors/error.yaml
+    example:
+      type: https://avito.kitchen/problems/not-found
+      title: Not Found
+      status: 404
+      code: NOT_FOUND
+      detail: Resource not found

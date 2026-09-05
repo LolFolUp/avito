@@ -1,0 +1,48 @@
+type: object
+required:
+  - id
+  - restaurant_id
+  - status
+  - customer_name
+  - customer_phone
+  - delivery_address
+  - items
+  - total_minor
+  - currency
+  - created_at
+  - updated_at
+properties:
+  id:
+    type: string
+    format: uuid
+  restaurant_id:
+    type: string
+    format: uuid
+  status:
+    $ref: ./enums/order_status.yaml
+  customer_name:
+    type: string
+  customer_phone:
+    type: string
+  delivery_address:
+    type: string
+  items:
+    type: array
+    items:
+      $ref: ./order_item.yaml
+  total_minor:
+    type: integer
+    format: int64
+    minimum: 0
+  currency:
+    type: string
+    minLength: 3
+    maxLength: 3
+  rejection_reason:
+    type: string
+  created_at:
+    type: string
+    format: date-time
+  updated_at:
+    type: string
+    format: date-time

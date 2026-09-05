@@ -1,0 +1,11 @@
+description: Сервис временно не готов
+content:
+  application/problem+json:
+    schema:
+      $ref: ../errors/error.yaml
+    example:
+      type: https://avito.kitchen/problems/unavailable
+      title: Service Unavailable
+      status: 503
+      code: INTERNAL
+      detail: A required dependency is unavailable

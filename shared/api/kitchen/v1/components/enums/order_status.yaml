@@ -1,0 +1,11 @@
+type: string
+description: Статус заказа
+enum:
+  - pending_confirmation
+  - accepted
+  - preparing
+  - ready
+  - delivering
+  - delivered
+  - rejected
+example: pending_confirmation

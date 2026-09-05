@@ -1,0 +1,11 @@
+description: Внутренняя ошибка сервиса
+content:
+  application/problem+json:
+    schema:
+      $ref: ../errors/error.yaml
+    example:
+      type: https://avito.kitchen/problems/internal
+      title: Internal Server Error
+      status: 500
+      code: INTERNAL
+      detail: Internal server error

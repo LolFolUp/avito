@@ -1,0 +1,38 @@
+# Единая схема ошибки для всех HTTP-кодов. Конкретные примеры задаются
+# в components/responses, поэтому Swagger UI показывает подходящий ответ.
+type: object
+required:
+  - type
+  - title
+  - status
+  - code
+properties:
+  type:
+    type: string
+    format: uri
+    description: URI, идентифицирующий тип ошибки
+  title:
+    type: string
+    description: Краткое человекочитаемое описание класса ошибки
+  status:
+    type: integer
+    minimum: 400
+    maximum: 599
+    description: HTTP-код ответа
+  code:
+    type: string
+    description: Стабильный машинный код доменной ошибки
+  detail:
+    type: string
+    description: Подробное человекочитаемое описание
+  instance:
+    type: string
+    description: URI конкретного запроса, завершившегося ошибкой
+  request_id:
+    type: string
+    description: Идентификатор запроса для диагностики
+  items:
+    type: array
+    description: Детали конфликтных элементов меню
+    items:
+      $ref: ./error_item.yaml

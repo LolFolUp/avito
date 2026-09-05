@@ -1,0 +1,19 @@
+get:
+  tags: [Restaurants]
+  operationId: getRestaurantMenu
+  summary: Получить меню ресторана
+  parameters:
+    - $ref: ../components/params/restaurant_id.yaml
+  responses:
+    "200":
+      description: Актуальное меню ресторана
+      content:
+        application/json:
+          schema:
+            $ref: ../components/menu.yaml
+    "400":
+      $ref: ../components/responses/bad_request.yaml
+    "404":
+      $ref: ../components/responses/not_found.yaml
+    "500":
+      $ref: ../components/responses/internal_error.yaml

@@ -1,0 +1,8 @@
+type: object
+required:
+  - restaurants
+properties:
+  restaurants:
+    type: array
+    items:
+      $ref: ./restaurant.yaml

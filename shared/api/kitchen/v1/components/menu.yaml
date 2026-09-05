@@ -1,0 +1,15 @@
+type: object
+required:
+  - restaurant_id
+  - accepting_orders
+  - items
+properties:
+  restaurant_id:
+    type: string
+    format: uuid
+  accepting_orders:
+    type: boolean
+  items:
+    type: array
+    items:
+      $ref: ./menu_item.yaml

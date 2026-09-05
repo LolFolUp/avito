@@ -1,0 +1,17 @@
+type: object
+required:
+  - menu_item_id
+  - quantity
+  - observed_version
+properties:
+  menu_item_id:
+    type: string
+    format: uuid
+  quantity:
+    type: integer
+    minimum: 1
+    maximum: 99
+  observed_version:
+    type: integer
+    format: int64
+    minimum: 1

@@ -1,0 +1,13 @@
+get:
+  tags: [Restaurants]
+  operationId: listRestaurants
+  summary: Получить список активных ресторанов
+  responses:
+    "200":
+      description: Список активных ресторанов
+      content:
+        application/json:
+          schema:
+            $ref: ../components/restaurant_list.yaml
+    "500":
+      $ref: ../components/responses/internal_error.yaml

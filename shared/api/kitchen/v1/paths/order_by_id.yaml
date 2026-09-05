@@ -1,0 +1,19 @@
+get:
+  tags: [Orders]
+  operationId: getOrder
+  summary: Получить заказ
+  parameters:
+    - $ref: ../components/params/order_id.yaml
+  responses:
+    "200":
+      description: Заказ и его текущий статус
+      content:
+        application/json:
+          schema:
+            $ref: ../components/order.yaml
+    "400":
+      $ref: ../components/responses/bad_request.yaml
+    "404":
+      $ref: ../components/responses/not_found.yaml
+    "500":
+      $ref: ../components/responses/internal_error.yaml

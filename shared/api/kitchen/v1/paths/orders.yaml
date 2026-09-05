@@ -1,0 +1,25 @@
+post:
+  tags: [Orders]
+  operationId: createOrder
+  summary: Создать заказ
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/create_order_request.yaml
+  responses:
+    "201":
+      description: Заказ создан и ожидает подтверждения ресторана
+      content:
+        application/json:
+          schema:
+            $ref: ../components/order.yaml
+    "400":
+      $ref: ../components/responses/bad_request.yaml
+    "404":
+      $ref: ../components/responses/not_found.yaml
+    "409":
+      $ref: ../components/responses/conflict.yaml
+    "500":
+      $ref: ../components/responses/internal_error.yaml

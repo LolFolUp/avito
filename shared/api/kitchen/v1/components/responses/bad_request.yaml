@@ -1,0 +1,11 @@
+description: Некорректный запрос
+content:
+  application/problem+json:
+    schema:
+      $ref: ../errors/error.yaml
+    example:
+      type: https://avito.kitchen/problems/invalid-argument
+      title: Bad Request
+      status: 400
+      code: INVALID_ARGUMENT
+      detail: Request parameters are invalid

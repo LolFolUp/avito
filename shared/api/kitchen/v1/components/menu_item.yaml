@@ -1,0 +1,34 @@
+type: object
+required:
+  - id
+  - name
+  - price_minor
+  - currency
+  - is_available
+  - version
+properties:
+  id:
+    type: string
+    format: uuid
+  name:
+    type: string
+    minLength: 1
+    maxLength: 200
+  description:
+    type: string
+    maxLength: 2000
+  price_minor:
+    type: integer
+    format: int64
+    minimum: 0
+  currency:
+    type: string
+    minLength: 3
+    maxLength: 3
+    example: RUB
+  is_available:
+    type: boolean
+  version:
+    type: integer
+    format: int64
+    minimum: 1

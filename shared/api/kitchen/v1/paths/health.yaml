@@ -1,0 +1,11 @@
+get:
+  tags: [Health]
+  operationId: health
+  summary: Проверить liveness процесса
+  responses:
+    "200":
+      description: Процесс работает
+      content:
+        application/json:
+          schema:
+            $ref: ../components/health_status.yaml

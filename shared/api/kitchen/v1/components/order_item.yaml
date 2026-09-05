@@ -1,0 +1,24 @@
+type: object
+required:
+  - menu_item_id
+  - name
+  - unit_price_minor
+  - quantity
+  - line_total_minor
+properties:
+  menu_item_id:
+    type: string
+    format: uuid
+  name:
+    type: string
+  unit_price_minor:
+    type: integer
+    format: int64
+    minimum: 0
+  quantity:
+    type: integer
+    minimum: 1
+  line_total_minor:
+    type: integer
+    format: int64
+    minimum: 0

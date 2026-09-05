@@ -1,0 +1,15 @@
+type: object
+required:
+  - id
+  - name
+  - accepting_orders
+properties:
+  id:
+    type: string
+    format: uuid
+  name:
+    type: string
+    minLength: 1
+    maxLength: 200
+  accepting_orders:
+    type: boolean

@@ -1,0 +1,18 @@
+description: Меню изменилось или ресторан не может принять заказ
+content:
+  application/problem+json:
+    schema:
+      $ref: ../errors/error.yaml
+    example:
+      type: https://avito.kitchen/problems/menu-changed
+      title: Conflict
+      status: 409
+      code: MENU_CHANGED
+      detail: One or more menu items have changed
+      items:
+        - code: MENU_ITEM_CHANGED
+          menu_item_id: 00000000-0000-0000-0000-000000000002
+          requested_version: 1
+          current_version: 2
+          is_available: true
+          current_price_minor: 65000

@@ -1,0 +1,13 @@
+get:
+  tags: [Health]
+  operationId: readiness
+  summary: Проверить готовность сервиса
+  responses:
+    "200":
+      description: Сервис готов принимать запросы
+      content:
+        application/json:
+          schema:
+            $ref: ../components/health_status.yaml
+    "503":
+      $ref: ../components/responses/service_unavailable.yaml
