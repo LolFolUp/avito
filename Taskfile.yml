@@ -14,8 +14,7 @@ tasks:
   gen:openapi:
     desc: Generate Kitchen REST server code from OpenAPI
     sources:
-      - shared/api/kitchen/v1/openapi.yaml
-      - shared/api/kitchen/v1/ogen.yaml
+      - shared/api/kitchen/v1/**/*.yaml
     generates:
       - shared/pkg/openapi/kitchen/v1/**/*.go
     cmds:

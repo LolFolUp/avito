@@ -98,7 +98,7 @@ func OrderToOpenAPI(source model.Order) *openapi.Order {
 	return result
 }
 
-func Problem(err error, statusCode int) *openapi.Problem {
+func Error(err error, statusCode int) *openapi.Error {
 	code := errs.CodeInternal
 	title := "Internal server error"
 	detail := "an unexpected error occurred"
@@ -111,7 +111,7 @@ func Problem(err error, statusCode int) *openapi.Problem {
 		details = domainErr.Details
 	}
 
-	problem := &openapi.Problem{
+	problem := &openapi.Error{
 		Type:   url.URL{Scheme: "https", Host: "avito-kitchen.local", Path: "/errors/" + strings.ToLower(code)},
 		Title:  title,
 		Status: statusCode,
@@ -120,9 +120,9 @@ func Problem(err error, statusCode int) *openapi.Problem {
 	}
 
 	if conflicts, ok := details.([]model.MenuItemConflict); ok {
-		problem.Items = make([]openapi.ProblemItem, 0, len(conflicts))
+		problem.Items = make([]openapi.ErrorItem, 0, len(conflicts))
 		for _, conflict := range conflicts {
-			problem.Items = append(problem.Items, openapi.ProblemItem{
+			problem.Items = append(problem.Items, openapi.ErrorItem{
 				Code:              errs.CodeMenuChanged,
 				MenuItemID:        openapi.NewOptUUID(conflict.MenuItemID),
 				RequestedVersion:  openapi.NewOptInt64(conflict.RequestedVersion),

@@ -15,7 +15,7 @@ var _ Handler = UnimplementedHandler{}
 
 // CreateOrder implements createOrder operation.
 //
-// Create an order.
+// Создать заказ.
 //
 // POST /api/v1/orders
 func (UnimplementedHandler) CreateOrder(ctx context.Context, req *CreateOrderRequest) (r CreateOrderRes, _ error) {
@@ -24,7 +24,7 @@ func (UnimplementedHandler) CreateOrder(ctx context.Context, req *CreateOrderReq
 
 // GetOrder implements getOrder operation.
 //
-// Get an order.
+// Получить заказ.
 //
 // GET /api/v1/orders/{orderId}
 func (UnimplementedHandler) GetOrder(ctx context.Context, params GetOrderParams) (r GetOrderRes, _ error) {
@@ -33,7 +33,7 @@ func (UnimplementedHandler) GetOrder(ctx context.Context, params GetOrderParams)
 
 // GetRestaurantMenu implements getRestaurantMenu operation.
 //
-// Get a restaurant menu.
+// Получить меню ресторана.
 //
 // GET /api/v1/restaurants/{restaurantId}/menu
 func (UnimplementedHandler) GetRestaurantMenu(ctx context.Context, params GetRestaurantMenuParams) (r GetRestaurantMenuRes, _ error) {
@@ -42,7 +42,7 @@ func (UnimplementedHandler) GetRestaurantMenu(ctx context.Context, params GetRes
 
 // Health implements health operation.
 //
-// Check process liveness.
+// Проверить liveness процесса.
 //
 // GET /healthz
 func (UnimplementedHandler) Health(ctx context.Context) (r *HealthStatus, _ error) {
@@ -51,7 +51,7 @@ func (UnimplementedHandler) Health(ctx context.Context) (r *HealthStatus, _ erro
 
 // ListRestaurants implements listRestaurants operation.
 //
-// List active restaurants.
+// Получить список активных ресторанов.
 //
 // GET /api/v1/restaurants
 func (UnimplementedHandler) ListRestaurants(ctx context.Context) (r ListRestaurantsRes, _ error) {
@@ -60,7 +60,7 @@ func (UnimplementedHandler) ListRestaurants(ctx context.Context) (r ListRestaura
 
 // Readiness implements readiness operation.
 //
-// Check service readiness.
+// Проверить готовность сервиса.
 //
 // GET /readyz
 func (UnimplementedHandler) Readiness(ctx context.Context) (r ReadinessRes, _ error) {

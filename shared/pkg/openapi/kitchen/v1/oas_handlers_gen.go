@@ -30,7 +30,7 @@ func recordError(string, error) {}
 
 // handleCreateOrderRequest handles createOrder operation.
 //
-// Create an order.
+// Создать заказ.
 //
 // POST /api/v1/orders
 func (s *Server) handleCreateOrderRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -68,7 +68,7 @@ func (s *Server) handleCreateOrderRequest(args [0]string, argsEscaped bool, w ht
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    CreateOrderOperation,
-			OperationSummary: "Create an order",
+			OperationSummary: "Создать заказ",
 			OperationID:      "createOrder",
 			Body:             request,
 			RawBody:          rawBody,
@@ -114,7 +114,7 @@ func (s *Server) handleCreateOrderRequest(args [0]string, argsEscaped bool, w ht
 
 // handleGetOrderRequest handles getOrder operation.
 //
-// Get an order.
+// Получить заказ.
 //
 // GET /api/v1/orders/{orderId}
 func (s *Server) handleGetOrderRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -147,7 +147,7 @@ func (s *Server) handleGetOrderRequest(args [1]string, argsEscaped bool, w http.
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    GetOrderOperation,
-			OperationSummary: "Get an order",
+			OperationSummary: "Получить заказ",
 			OperationID:      "getOrder",
 			Body:             nil,
 			RawBody:          rawBody,
@@ -198,7 +198,7 @@ func (s *Server) handleGetOrderRequest(args [1]string, argsEscaped bool, w http.
 
 // handleGetRestaurantMenuRequest handles getRestaurantMenu operation.
 //
-// Get a restaurant menu.
+// Получить меню ресторана.
 //
 // GET /api/v1/restaurants/{restaurantId}/menu
 func (s *Server) handleGetRestaurantMenuRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -231,7 +231,7 @@ func (s *Server) handleGetRestaurantMenuRequest(args [1]string, argsEscaped bool
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    GetRestaurantMenuOperation,
-			OperationSummary: "Get a restaurant menu",
+			OperationSummary: "Получить меню ресторана",
 			OperationID:      "getRestaurantMenu",
 			Body:             nil,
 			RawBody:          rawBody,
@@ -282,7 +282,7 @@ func (s *Server) handleGetRestaurantMenuRequest(args [1]string, argsEscaped bool
 
 // handleHealthRequest handles health operation.
 //
-// Check process liveness.
+// Проверить liveness процесса.
 //
 // GET /healthz
 func (s *Server) handleHealthRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -301,7 +301,7 @@ func (s *Server) handleHealthRequest(args [0]string, argsEscaped bool, w http.Re
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    HealthOperation,
-			OperationSummary: "Check process liveness",
+			OperationSummary: "Проверить liveness процесса",
 			OperationID:      "health",
 			Body:             nil,
 			RawBody:          rawBody,
@@ -347,7 +347,7 @@ func (s *Server) handleHealthRequest(args [0]string, argsEscaped bool, w http.Re
 
 // handleListRestaurantsRequest handles listRestaurants operation.
 //
-// List active restaurants.
+// Получить список активных ресторанов.
 //
 // GET /api/v1/restaurants
 func (s *Server) handleListRestaurantsRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -366,7 +366,7 @@ func (s *Server) handleListRestaurantsRequest(args [0]string, argsEscaped bool, 
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    ListRestaurantsOperation,
-			OperationSummary: "List active restaurants",
+			OperationSummary: "Получить список активных ресторанов",
 			OperationID:      "listRestaurants",
 			Body:             nil,
 			RawBody:          rawBody,
@@ -412,7 +412,7 @@ func (s *Server) handleListRestaurantsRequest(args [0]string, argsEscaped bool, 
 
 // handleReadinessRequest handles readiness operation.
 //
-// Check service readiness.
+// Проверить готовность сервиса.
 //
 // GET /readyz
 func (s *Server) handleReadinessRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -431,7 +431,7 @@ func (s *Server) handleReadinessRequest(args [0]string, argsEscaped bool, w http
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    ReadinessOperation,
-			OperationSummary: "Check service readiness",
+			OperationSummary: "Проверить готовность сервиса",
 			OperationID:      "readiness",
 			Body:             nil,
 			RawBody:          rawBody,

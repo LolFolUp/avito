@@ -10,7 +10,7 @@ import (
 )
 
 func (s *CreateOrderBadRequest) Validate() error {
-	alias := (*Problem)(s)
+	alias := (*Error)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -18,7 +18,7 @@ func (s *CreateOrderBadRequest) Validate() error {
 }
 
 func (s *CreateOrderConflict) Validate() error {
-	alias := (*Problem)(s)
+	alias := (*Error)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -26,7 +26,7 @@ func (s *CreateOrderConflict) Validate() error {
 }
 
 func (s *CreateOrderInternalServerError) Validate() error {
-	alias := (*Problem)(s)
+	alias := (*Error)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (s *CreateOrderItem) Validate() error {
 }
 
 func (s *CreateOrderNotFound) Validate() error {
-	alias := (*Problem)(s)
+	alias := (*Error)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -212,8 +212,106 @@ func (s *CreateOrderRequest) Validate() error {
 	return nil
 }
 
+func (s *Error) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := (validate.Int{
+			MinSet:        true,
+			Min:           400,
+			MaxSet:        true,
+			Max:           599,
+			MinExclusive:  false,
+			MaxExclusive:  false,
+			MultipleOfSet: false,
+			MultipleOf:    0,
+			Pattern:       nil,
+		}).Validate(int64(s.Status)); err != nil {
+			return errors.Wrap(err, "int")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "status",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		var failures []validate.FieldError
+		for i, elem := range s.Items {
+			if err := func() error {
+				if err := elem.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				failures = append(failures, validate.FieldError{
+					Name:  fmt.Sprintf("[%d]", i),
+					Error: err,
+				})
+			}
+		}
+		if len(failures) > 0 {
+			return &validate.Error{Fields: failures}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "items",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s *ErrorItem) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if value, ok := s.CurrentPriceMinor.Get(); ok {
+			if err := func() error {
+				if err := (validate.Int{
+					MinSet:        true,
+					Min:           0,
+					MaxSet:        false,
+					Max:           0,
+					MinExclusive:  false,
+					MaxExclusive:  false,
+					MultipleOfSet: false,
+					MultipleOf:    0,
+					Pattern:       nil,
+				}).Validate(int64(value)); err != nil {
+					return errors.Wrap(err, "int")
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "current_price_minor",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
 func (s *GetOrderBadRequest) Validate() error {
-	alias := (*Problem)(s)
+	alias := (*Error)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -221,7 +319,7 @@ func (s *GetOrderBadRequest) Validate() error {
 }
 
 func (s *GetOrderInternalServerError) Validate() error {
-	alias := (*Problem)(s)
+	alias := (*Error)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -229,7 +327,7 @@ func (s *GetOrderInternalServerError) Validate() error {
 }
 
 func (s *GetOrderNotFound) Validate() error {
-	alias := (*Problem)(s)
+	alias := (*Error)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -237,7 +335,7 @@ func (s *GetOrderNotFound) Validate() error {
 }
 
 func (s *GetRestaurantMenuBadRequest) Validate() error {
-	alias := (*Problem)(s)
+	alias := (*Error)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -245,7 +343,7 @@ func (s *GetRestaurantMenuBadRequest) Validate() error {
 }
 
 func (s *GetRestaurantMenuInternalServerError) Validate() error {
-	alias := (*Problem)(s)
+	alias := (*Error)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -253,7 +351,7 @@ func (s *GetRestaurantMenuInternalServerError) Validate() error {
 }
 
 func (s *GetRestaurantMenuNotFound) Validate() error {
-	alias := (*Problem)(s)
+	alias := (*Error)(s)
 	if err := alias.Validate(); err != nil {
 		return err
 	}
@@ -651,104 +749,6 @@ func (s OrderStatus) Validate() error {
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
-}
-
-func (s *Problem) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Int{
-			MinSet:        true,
-			Min:           400,
-			MaxSet:        true,
-			Max:           599,
-			MinExclusive:  false,
-			MaxExclusive:  false,
-			MultipleOfSet: false,
-			MultipleOf:    0,
-			Pattern:       nil,
-		}).Validate(int64(s.Status)); err != nil {
-			return errors.Wrap(err, "int")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "status",
-			Error: err,
-		})
-	}
-	if err := func() error {
-		var failures []validate.FieldError
-		for i, elem := range s.Items {
-			if err := func() error {
-				if err := elem.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				failures = append(failures, validate.FieldError{
-					Name:  fmt.Sprintf("[%d]", i),
-					Error: err,
-				})
-			}
-		}
-		if len(failures) > 0 {
-			return &validate.Error{Fields: failures}
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "items",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-
-func (s *ProblemItem) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if value, ok := s.CurrentPriceMinor.Get(); ok {
-			if err := func() error {
-				if err := (validate.Int{
-					MinSet:        true,
-					Min:           0,
-					MaxSet:        false,
-					Max:           0,
-					MinExclusive:  false,
-					MaxExclusive:  false,
-					MultipleOfSet: false,
-					MultipleOf:    0,
-					Pattern:       nil,
-				}).Validate(int64(value)); err != nil {
-					return errors.Wrap(err, "int")
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "current_price_minor",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }
 
 func (s *Restaurant) Validate() error {

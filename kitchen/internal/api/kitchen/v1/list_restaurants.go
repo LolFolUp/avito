@@ -11,7 +11,7 @@ func (a *API) ListRestaurants(ctx context.Context) (openapi.ListRestaurantsRes, 
 	restaurants, err := a.catalog.ListRestaurants(ctx)
 	if err != nil {
 		a.logError("list restaurants", err)
-		return converter.Problem(err, errorHTTPStatus(err)), nil
+		return converter.Error(err, errorHTTPStatus(err)), nil
 	}
 
 	return converter.RestaurantsToOpenAPI(restaurants), nil

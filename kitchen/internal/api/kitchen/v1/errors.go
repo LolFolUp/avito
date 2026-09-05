@@ -35,7 +35,7 @@ func errorHTTPStatus(err error) int {
 }
 
 func createOrderError(err error) openapi.CreateOrderRes {
-	problem := converter.Problem(err, errorHTTPStatus(err))
+	problem := converter.Error(err, errorHTTPStatus(err))
 	switch problem.Status {
 	case 400:
 		return (*openapi.CreateOrderBadRequest)(problem)
@@ -49,7 +49,7 @@ func createOrderError(err error) openapi.CreateOrderRes {
 }
 
 func getOrderError(err error) openapi.GetOrderRes {
-	problem := converter.Problem(err, errorHTTPStatus(err))
+	problem := converter.Error(err, errorHTTPStatus(err))
 	switch problem.Status {
 	case 400:
 		return (*openapi.GetOrderBadRequest)(problem)
@@ -61,7 +61,7 @@ func getOrderError(err error) openapi.GetOrderRes {
 }
 
 func restaurantMenuError(err error) openapi.GetRestaurantMenuRes {
-	problem := converter.Problem(err, errorHTTPStatus(err))
+	problem := converter.Error(err, errorHTTPStatus(err))
 	switch problem.Status {
 	case 400:
 		return (*openapi.GetRestaurantMenuBadRequest)(problem)
@@ -72,6 +72,6 @@ func restaurantMenuError(err error) openapi.GetRestaurantMenuRes {
 	}
 }
 
-func converterProblem(err error, statusCode int) *openapi.Problem {
-	return converter.Problem(err, statusCode)
+func converterError(err error, statusCode int) *openapi.Error {
+	return converter.Error(err, statusCode)
 }

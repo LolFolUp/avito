@@ -213,7 +213,7 @@ func encodeListRestaurantsResponse(response ListRestaurantsRes, w http.ResponseW
 
 		return nil
 
-	case *Problem:
+	case *Error:
 		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(500)
 
@@ -244,7 +244,7 @@ func encodeReadinessResponse(response ReadinessRes, w http.ResponseWriter) error
 
 		return nil
 
-	case *Problem:
+	case *Error:
 		w.Header().Set("Content-Type", "application/problem+json")
 		w.WriteHeader(503)
 

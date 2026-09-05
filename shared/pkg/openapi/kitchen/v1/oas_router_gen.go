@@ -393,7 +393,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						switch method {
 						case "POST":
 							r.name = CreateOrderOperation
-							r.summary = "Create an order"
+							r.summary = "Создать заказ"
 							r.operationID = "createOrder"
 							r.operationGroup = ""
 							r.pathPattern = "/api/v1/orders"
@@ -427,7 +427,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							switch method {
 							case "GET":
 								r.name = GetOrderOperation
-								r.summary = "Get an order"
+								r.summary = "Получить заказ"
 								r.operationID = "getOrder"
 								r.operationGroup = ""
 								r.pathPattern = "/api/v1/orders/{orderId}"
@@ -453,7 +453,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						switch method {
 						case "GET":
 							r.name = ListRestaurantsOperation
-							r.summary = "List active restaurants"
+							r.summary = "Получить список активных ресторанов"
 							r.operationID = "listRestaurants"
 							r.operationGroup = ""
 							r.pathPattern = "/api/v1/restaurants"
@@ -499,7 +499,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								switch method {
 								case "GET":
 									r.name = GetRestaurantMenuOperation
-									r.summary = "Get a restaurant menu"
+									r.summary = "Получить меню ресторана"
 									r.operationID = "getRestaurantMenu"
 									r.operationGroup = ""
 									r.pathPattern = "/api/v1/restaurants/{restaurantId}/menu"
@@ -530,7 +530,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					switch method {
 					case "GET":
 						r.name = HealthOperation
-						r.summary = "Check process liveness"
+						r.summary = "Проверить liveness процесса"
 						r.operationID = "health"
 						r.operationGroup = ""
 						r.pathPattern = "/healthz"
@@ -555,7 +555,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					switch method {
 					case "GET":
 						r.name = ReadinessOperation
-						r.summary = "Check service readiness"
+						r.summary = "Проверить готовность сервиса"
 						r.operationID = "readiness"
 						r.operationGroup = ""
 						r.pathPattern = "/readyz"

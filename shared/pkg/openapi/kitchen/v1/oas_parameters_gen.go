@@ -17,7 +17,7 @@ import (
 
 // GetOrderParams is parameters of getOrder operation.
 type GetOrderParams struct {
-	// Order identifier.
+	// Идентификатор заказа.
 	OrderId uuid.UUID
 }
 
@@ -83,7 +83,7 @@ func decodeGetOrderParams(args [1]string, argsEscaped bool, r *http.Request) (pa
 
 // GetRestaurantMenuParams is parameters of getRestaurantMenu operation.
 type GetRestaurantMenuParams struct {
-	// Restaurant identifier.
+	// Идентификатор ресторана.
 	RestaurantId uuid.UUID
 }
 

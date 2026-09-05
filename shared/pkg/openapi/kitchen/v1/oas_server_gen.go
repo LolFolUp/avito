@@ -10,37 +10,37 @@ import (
 type Handler interface {
 	// CreateOrder implements createOrder operation.
 	//
-	// Create an order.
+	// Создать заказ.
 	//
 	// POST /api/v1/orders
 	CreateOrder(ctx context.Context, req *CreateOrderRequest) (CreateOrderRes, error)
 	// GetOrder implements getOrder operation.
 	//
-	// Get an order.
+	// Получить заказ.
 	//
 	// GET /api/v1/orders/{orderId}
 	GetOrder(ctx context.Context, params GetOrderParams) (GetOrderRes, error)
 	// GetRestaurantMenu implements getRestaurantMenu operation.
 	//
-	// Get a restaurant menu.
+	// Получить меню ресторана.
 	//
 	// GET /api/v1/restaurants/{restaurantId}/menu
 	GetRestaurantMenu(ctx context.Context, params GetRestaurantMenuParams) (GetRestaurantMenuRes, error)
 	// Health implements health operation.
 	//
-	// Check process liveness.
+	// Проверить liveness процесса.
 	//
 	// GET /healthz
 	Health(ctx context.Context) (*HealthStatus, error)
 	// ListRestaurants implements listRestaurants operation.
 	//
-	// List active restaurants.
+	// Получить список активных ресторанов.
 	//
 	// GET /api/v1/restaurants
 	ListRestaurants(ctx context.Context) (ListRestaurantsRes, error)
 	// Readiness implements readiness operation.
 	//
-	// Check service readiness.
+	// Проверить готовность сервиса.
 	//
 	// GET /readyz
 	Readiness(ctx context.Context) (ReadinessRes, error)

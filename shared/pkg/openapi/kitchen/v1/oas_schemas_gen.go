@@ -10,19 +10,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type CreateOrderBadRequest Problem
+type CreateOrderBadRequest Error
 
 func (*CreateOrderBadRequest) createOrderRes() {}
 
-type CreateOrderConflict Problem
+type CreateOrderConflict Error
 
 func (*CreateOrderConflict) createOrderRes() {}
 
-type CreateOrderInternalServerError Problem
+type CreateOrderInternalServerError Error
 
 func (*CreateOrderInternalServerError) createOrderRes() {}
 
-// Ref: #/components/schemas/CreateOrderItem
+// Ref: #
 type CreateOrderItem struct {
 	MenuItemID      uuid.UUID `json:"menu_item_id"`
 	Quantity        int       `json:"quantity"`
@@ -59,11 +59,11 @@ func (s *CreateOrderItem) SetObservedVersion(val int64) {
 	s.ObservedVersion = val
 }
 
-type CreateOrderNotFound Problem
+type CreateOrderNotFound Error
 
 func (*CreateOrderNotFound) createOrderRes() {}
 
-// Ref: #/components/schemas/CreateOrderRequest
+// Ref: #
 type CreateOrderRequest struct {
 	RestaurantID    uuid.UUID         `json:"restaurant_id"`
 	CustomerName    string            `json:"customer_name"`
@@ -122,31 +122,215 @@ func (s *CreateOrderRequest) SetItems(val []CreateOrderItem) {
 	s.Items = val
 }
 
-type GetOrderBadRequest Problem
+// Ref: #
+type Error struct {
+	// URI, идентифицирующий тип ошибки.
+	Type url.URL `json:"type"`
+	// Краткое человекочитаемое описание класса ошибки.
+	Title string `json:"title"`
+	// HTTP-код ответа.
+	Status int `json:"status"`
+	// Стабильный машинный код доменной ошибки.
+	Code string `json:"code"`
+	// Подробное человекочитаемое описание.
+	Detail OptString `json:"detail"`
+	// URI конкретного запроса, завершившегося ошибкой.
+	Instance OptString `json:"instance"`
+	// Идентификатор запроса для диагностики.
+	RequestID OptString `json:"request_id"`
+	// Детали конфликтных элементов меню.
+	Items []ErrorItem `json:"items"`
+}
+
+// GetType returns the value of Type.
+func (s *Error) GetType() url.URL {
+	return s.Type
+}
+
+// GetTitle returns the value of Title.
+func (s *Error) GetTitle() string {
+	return s.Title
+}
+
+// GetStatus returns the value of Status.
+func (s *Error) GetStatus() int {
+	return s.Status
+}
+
+// GetCode returns the value of Code.
+func (s *Error) GetCode() string {
+	return s.Code
+}
+
+// GetDetail returns the value of Detail.
+func (s *Error) GetDetail() OptString {
+	return s.Detail
+}
+
+// GetInstance returns the value of Instance.
+func (s *Error) GetInstance() OptString {
+	return s.Instance
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *Error) GetRequestID() OptString {
+	return s.RequestID
+}
+
+// GetItems returns the value of Items.
+func (s *Error) GetItems() []ErrorItem {
+	return s.Items
+}
+
+// SetType sets the value of Type.
+func (s *Error) SetType(val url.URL) {
+	s.Type = val
+}
+
+// SetTitle sets the value of Title.
+func (s *Error) SetTitle(val string) {
+	s.Title = val
+}
+
+// SetStatus sets the value of Status.
+func (s *Error) SetStatus(val int) {
+	s.Status = val
+}
+
+// SetCode sets the value of Code.
+func (s *Error) SetCode(val string) {
+	s.Code = val
+}
+
+// SetDetail sets the value of Detail.
+func (s *Error) SetDetail(val OptString) {
+	s.Detail = val
+}
+
+// SetInstance sets the value of Instance.
+func (s *Error) SetInstance(val OptString) {
+	s.Instance = val
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *Error) SetRequestID(val OptString) {
+	s.RequestID = val
+}
+
+// SetItems sets the value of Items.
+func (s *Error) SetItems(val []ErrorItem) {
+	s.Items = val
+}
+
+func (*Error) listRestaurantsRes() {}
+func (*Error) readinessRes()       {}
+
+// Ref: #
+type ErrorItem struct {
+	Code              string    `json:"code"`
+	Field             OptString `json:"field"`
+	MenuItemID        OptUUID   `json:"menu_item_id"`
+	RequestedVersion  OptInt64  `json:"requested_version"`
+	CurrentVersion    OptInt64  `json:"current_version"`
+	IsAvailable       OptBool   `json:"is_available"`
+	CurrentPriceMinor OptInt64  `json:"current_price_minor"`
+}
+
+// GetCode returns the value of Code.
+func (s *ErrorItem) GetCode() string {
+	return s.Code
+}
+
+// GetField returns the value of Field.
+func (s *ErrorItem) GetField() OptString {
+	return s.Field
+}
+
+// GetMenuItemID returns the value of MenuItemID.
+func (s *ErrorItem) GetMenuItemID() OptUUID {
+	return s.MenuItemID
+}
+
+// GetRequestedVersion returns the value of RequestedVersion.
+func (s *ErrorItem) GetRequestedVersion() OptInt64 {
+	return s.RequestedVersion
+}
+
+// GetCurrentVersion returns the value of CurrentVersion.
+func (s *ErrorItem) GetCurrentVersion() OptInt64 {
+	return s.CurrentVersion
+}
+
+// GetIsAvailable returns the value of IsAvailable.
+func (s *ErrorItem) GetIsAvailable() OptBool {
+	return s.IsAvailable
+}
+
+// GetCurrentPriceMinor returns the value of CurrentPriceMinor.
+func (s *ErrorItem) GetCurrentPriceMinor() OptInt64 {
+	return s.CurrentPriceMinor
+}
+
+// SetCode sets the value of Code.
+func (s *ErrorItem) SetCode(val string) {
+	s.Code = val
+}
+
+// SetField sets the value of Field.
+func (s *ErrorItem) SetField(val OptString) {
+	s.Field = val
+}
+
+// SetMenuItemID sets the value of MenuItemID.
+func (s *ErrorItem) SetMenuItemID(val OptUUID) {
+	s.MenuItemID = val
+}
+
+// SetRequestedVersion sets the value of RequestedVersion.
+func (s *ErrorItem) SetRequestedVersion(val OptInt64) {
+	s.RequestedVersion = val
+}
+
+// SetCurrentVersion sets the value of CurrentVersion.
+func (s *ErrorItem) SetCurrentVersion(val OptInt64) {
+	s.CurrentVersion = val
+}
+
+// SetIsAvailable sets the value of IsAvailable.
+func (s *ErrorItem) SetIsAvailable(val OptBool) {
+	s.IsAvailable = val
+}
+
+// SetCurrentPriceMinor sets the value of CurrentPriceMinor.
+func (s *ErrorItem) SetCurrentPriceMinor(val OptInt64) {
+	s.CurrentPriceMinor = val
+}
+
+type GetOrderBadRequest Error
 
 func (*GetOrderBadRequest) getOrderRes() {}
 
-type GetOrderInternalServerError Problem
+type GetOrderInternalServerError Error
 
 func (*GetOrderInternalServerError) getOrderRes() {}
 
-type GetOrderNotFound Problem
+type GetOrderNotFound Error
 
 func (*GetOrderNotFound) getOrderRes() {}
 
-type GetRestaurantMenuBadRequest Problem
+type GetRestaurantMenuBadRequest Error
 
 func (*GetRestaurantMenuBadRequest) getRestaurantMenuRes() {}
 
-type GetRestaurantMenuInternalServerError Problem
+type GetRestaurantMenuInternalServerError Error
 
 func (*GetRestaurantMenuInternalServerError) getRestaurantMenuRes() {}
 
-type GetRestaurantMenuNotFound Problem
+type GetRestaurantMenuNotFound Error
 
 func (*GetRestaurantMenuNotFound) getRestaurantMenuRes() {}
 
-// Ref: #/components/schemas/HealthStatus
+// Ref: #
 type HealthStatus struct {
 	Status HealthStatusStatus `json:"status"`
 }
@@ -197,7 +381,7 @@ func (s *HealthStatusStatus) UnmarshalText(data []byte) error {
 	}
 }
 
-// Ref: #/components/schemas/Menu
+// Ref: #
 type Menu struct {
 	RestaurantID    uuid.UUID  `json:"restaurant_id"`
 	AcceptingOrders bool       `json:"accepting_orders"`
@@ -236,7 +420,7 @@ func (s *Menu) SetItems(val []MenuItem) {
 
 func (*Menu) getRestaurantMenuRes() {}
 
-// Ref: #/components/schemas/MenuItem
+// Ref: #
 type MenuItem struct {
 	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
@@ -501,7 +685,7 @@ func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
-// Ref: #/components/schemas/Order
+// Ref: #
 type Order struct {
 	ID              uuid.UUID   `json:"id"`
 	RestaurantID    uuid.UUID   `json:"restaurant_id"`
@@ -640,7 +824,7 @@ func (s *Order) SetUpdatedAt(val time.Time) {
 func (*Order) createOrderRes() {}
 func (*Order) getOrderRes()    {}
 
-// Ref: #/components/schemas/OrderItem
+// Ref: #
 type OrderItem struct {
 	MenuItemID     uuid.UUID `json:"menu_item_id"`
 	Name           string    `json:"name"`
@@ -699,7 +883,8 @@ func (s *OrderItem) SetLineTotalMinor(val int64) {
 	s.LineTotalMinor = val
 }
 
-// Ref: #/components/schemas/OrderStatus
+// Статус заказа.
+// Ref: #
 type OrderStatus string
 
 const (
@@ -776,183 +961,7 @@ func (s *OrderStatus) UnmarshalText(data []byte) error {
 	}
 }
 
-// Ref: #/components/schemas/Problem
-type Problem struct {
-	Type      url.URL       `json:"type"`
-	Title     string        `json:"title"`
-	Status    int           `json:"status"`
-	Detail    OptString     `json:"detail"`
-	Instance  OptString     `json:"instance"`
-	Code      string        `json:"code"`
-	RequestID OptString     `json:"request_id"`
-	Items     []ProblemItem `json:"items"`
-}
-
-// GetType returns the value of Type.
-func (s *Problem) GetType() url.URL {
-	return s.Type
-}
-
-// GetTitle returns the value of Title.
-func (s *Problem) GetTitle() string {
-	return s.Title
-}
-
-// GetStatus returns the value of Status.
-func (s *Problem) GetStatus() int {
-	return s.Status
-}
-
-// GetDetail returns the value of Detail.
-func (s *Problem) GetDetail() OptString {
-	return s.Detail
-}
-
-// GetInstance returns the value of Instance.
-func (s *Problem) GetInstance() OptString {
-	return s.Instance
-}
-
-// GetCode returns the value of Code.
-func (s *Problem) GetCode() string {
-	return s.Code
-}
-
-// GetRequestID returns the value of RequestID.
-func (s *Problem) GetRequestID() OptString {
-	return s.RequestID
-}
-
-// GetItems returns the value of Items.
-func (s *Problem) GetItems() []ProblemItem {
-	return s.Items
-}
-
-// SetType sets the value of Type.
-func (s *Problem) SetType(val url.URL) {
-	s.Type = val
-}
-
-// SetTitle sets the value of Title.
-func (s *Problem) SetTitle(val string) {
-	s.Title = val
-}
-
-// SetStatus sets the value of Status.
-func (s *Problem) SetStatus(val int) {
-	s.Status = val
-}
-
-// SetDetail sets the value of Detail.
-func (s *Problem) SetDetail(val OptString) {
-	s.Detail = val
-}
-
-// SetInstance sets the value of Instance.
-func (s *Problem) SetInstance(val OptString) {
-	s.Instance = val
-}
-
-// SetCode sets the value of Code.
-func (s *Problem) SetCode(val string) {
-	s.Code = val
-}
-
-// SetRequestID sets the value of RequestID.
-func (s *Problem) SetRequestID(val OptString) {
-	s.RequestID = val
-}
-
-// SetItems sets the value of Items.
-func (s *Problem) SetItems(val []ProblemItem) {
-	s.Items = val
-}
-
-func (*Problem) listRestaurantsRes() {}
-func (*Problem) readinessRes()       {}
-
-// Ref: #/components/schemas/ProblemItem
-type ProblemItem struct {
-	Code              string    `json:"code"`
-	Field             OptString `json:"field"`
-	MenuItemID        OptUUID   `json:"menu_item_id"`
-	RequestedVersion  OptInt64  `json:"requested_version"`
-	CurrentVersion    OptInt64  `json:"current_version"`
-	IsAvailable       OptBool   `json:"is_available"`
-	CurrentPriceMinor OptInt64  `json:"current_price_minor"`
-}
-
-// GetCode returns the value of Code.
-func (s *ProblemItem) GetCode() string {
-	return s.Code
-}
-
-// GetField returns the value of Field.
-func (s *ProblemItem) GetField() OptString {
-	return s.Field
-}
-
-// GetMenuItemID returns the value of MenuItemID.
-func (s *ProblemItem) GetMenuItemID() OptUUID {
-	return s.MenuItemID
-}
-
-// GetRequestedVersion returns the value of RequestedVersion.
-func (s *ProblemItem) GetRequestedVersion() OptInt64 {
-	return s.RequestedVersion
-}
-
-// GetCurrentVersion returns the value of CurrentVersion.
-func (s *ProblemItem) GetCurrentVersion() OptInt64 {
-	return s.CurrentVersion
-}
-
-// GetIsAvailable returns the value of IsAvailable.
-func (s *ProblemItem) GetIsAvailable() OptBool {
-	return s.IsAvailable
-}
-
-// GetCurrentPriceMinor returns the value of CurrentPriceMinor.
-func (s *ProblemItem) GetCurrentPriceMinor() OptInt64 {
-	return s.CurrentPriceMinor
-}
-
-// SetCode sets the value of Code.
-func (s *ProblemItem) SetCode(val string) {
-	s.Code = val
-}
-
-// SetField sets the value of Field.
-func (s *ProblemItem) SetField(val OptString) {
-	s.Field = val
-}
-
-// SetMenuItemID sets the value of MenuItemID.
-func (s *ProblemItem) SetMenuItemID(val OptUUID) {
-	s.MenuItemID = val
-}
-
-// SetRequestedVersion sets the value of RequestedVersion.
-func (s *ProblemItem) SetRequestedVersion(val OptInt64) {
-	s.RequestedVersion = val
-}
-
-// SetCurrentVersion sets the value of CurrentVersion.
-func (s *ProblemItem) SetCurrentVersion(val OptInt64) {
-	s.CurrentVersion = val
-}
-
-// SetIsAvailable sets the value of IsAvailable.
-func (s *ProblemItem) SetIsAvailable(val OptBool) {
-	s.IsAvailable = val
-}
-
-// SetCurrentPriceMinor sets the value of CurrentPriceMinor.
-func (s *ProblemItem) SetCurrentPriceMinor(val OptInt64) {
-	s.CurrentPriceMinor = val
-}
-
-// Ref: #/components/schemas/Restaurant
+// Ref: #
 type Restaurant struct {
 	ID              uuid.UUID `json:"id"`
 	Name            string    `json:"name"`
@@ -989,7 +998,7 @@ func (s *Restaurant) SetAcceptingOrders(val bool) {
 	s.AcceptingOrders = val
 }
 
-// Ref: #/components/schemas/RestaurantList
+// Ref: #
 type RestaurantList struct {
 	Restaurants []Restaurant `json:"restaurants"`
 }

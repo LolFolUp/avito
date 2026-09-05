@@ -14,7 +14,7 @@ func (a *API) Health(context.Context) (*openapi.HealthStatus, error) {
 func (a *API) Readiness(ctx context.Context) (openapi.ReadinessRes, error) {
 	if err := a.readiness.Ping(ctx); err != nil {
 		a.logError("readiness", err)
-		return converterProblem(errs.Internal("check readiness", err), 503), nil
+		return converterError(errs.Internal("check readiness", err), 503), nil
 	}
 
 	return &openapi.HealthStatus{Status: openapi.HealthStatusStatusOk}, nil
