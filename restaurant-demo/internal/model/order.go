@@ -6,43 +6,102 @@ import (
 	"github.com/google/uuid"
 )
 
+// OrderStatus описывает этап жизненного цикла заказа.
 type OrderStatus string
 
 const (
-	OrderStatusPendingConfirmation OrderStatus = "pending_confirmation"
-	OrderStatusAccepted            OrderStatus = "accepted"
-	OrderStatusPreparing           OrderStatus = "preparing"
-	OrderStatusReady               OrderStatus = "ready"
-	OrderStatusDelivering          OrderStatus = "delivering"
-	OrderStatusDelivered           OrderStatus = "delivered"
-	OrderStatusRejected            OrderStatus = "rejected"
+	// OrderStatusAccepted означает, что ресторан принял заказ.
+	OrderStatusAccepted OrderStatus = "accepted"
+
+	// OrderStatusPreparing означает, что ресторан готовит заказ.
+	OrderStatusPreparing OrderStatus = "preparing"
+
+	// OrderStatusReady означает, что заказ приготовлен и готов к передаче.
+	OrderStatusReady OrderStatus = "ready"
+
+	// OrderStatusDelivering означает, что заказ находится в доставке.
+	OrderStatusDelivering OrderStatus = "delivering"
+
+	// OrderStatusDelivered означает, что заказ доставлен.
+	// Это терминальный статус.
+	OrderStatusDelivered OrderStatus = "delivered"
 )
 
+// Order описывает заказ, полученный рестораном из Kitchen.
+// Один Order содержит одну или несколько позиций OrderItem.
 type Order struct {
-	ID              uuid.UUID
-	RestaurantID    uuid.UUID
-	Status          OrderStatus
-	CustomerName    string
-	CustomerPhone   string
+	// ID — уникальный идентификатор заказа в Kitchen.
+	ID uuid.UUID
+
+	// RestaurantID — идентификатор ресторана, которому принадлежит заказ.
+	RestaurantID uuid.UUID
+
+	// Status — текущее состояние заказа.
+	Status OrderStatus
+
+	// CustomerName — имя клиента, указанное при оформлении.
+	CustomerName string
+
+	// CustomerPhone — телефон клиента для связи по заказу.
+	CustomerPhone string
+
+	// DeliveryAddress — адрес доставки заказа.
 	DeliveryAddress string
-	Items           []OrderItem
-	TotalMinor      int64
-	Currency        string
-	RejectionReason string
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+
+	// Items — позиции заказа. Это связь «один заказ — много позиций».
+	Items []OrderItem
+
+	// TotalMinor — полная стоимость заказа в минимальных единицах валюты.
+	TotalMinor int64
+
+	// Currency — трёхбуквенный код валюты, например RUB.
+	Currency string
+
+	// CreatedAt — момент создания заказа рестораном.
+	CreatedAt time.Time
+
+	// UpdatedAt — момент последнего изменения заказа.
+	UpdatedAt time.Time
 }
 
+// OrderItem описывает одну позицию заказа.
+// Название и цены являются snapshots на момент оформления заказа.
 type OrderItem struct {
-	MenuItemID     uuid.UUID
-	ExternalItemID string
-	Name           string
+	// MenuItemID — идентификатор позиции меню в restaurant-demo.
+	MenuItemID uuid.UUID
+
+	// Name — snapshot названия блюда на момент создания заказа.
+	Name string
+
+	// UnitPriceMinor — snapshot цены одной единицы блюда
+	// в минимальных единицах валюты.
 	UnitPriceMinor int64
-	Quantity       int
+
+	// Quantity — количество заказанных единиц блюда.
+	Quantity int
+
+	// LineTotalMinor — стоимость позиции: UnitPriceMinor * Quantity.
 	LineTotalMinor int64
 }
 
-type OrderPage struct {
-	Orders        []Order
-	NextPageToken string
+type CreateOrderItem struct {
+	MenuItemID      uuid.UUID
+	Quantity        int
+	ObservedVersion int64
+}
+
+type CreateOrder struct {
+	ID              uuid.UUID
+	RestaurantID    uuid.UUID
+	CustomerName    string
+	CustomerPhone   string
+	DeliveryAddress string
+	Items           []CreateOrderItem
+}
+
+type OrderStatusHistory struct {
+	OrderID    uuid.UUID
+	FromStatus *OrderStatus
+	ToStatus   OrderStatus
+	CreatedAt  time.Time
 }

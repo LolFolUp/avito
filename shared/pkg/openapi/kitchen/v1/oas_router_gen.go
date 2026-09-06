@@ -499,7 +499,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								switch method {
 								case "GET":
 									r.name = GetRestaurantMenuOperation
-									r.summary = "Получить меню ресторана"
+									r.summary = "Получить актуальное меню ресторана"
 									r.operationID = "getRestaurantMenu"
 									r.operationGroup = ""
 									r.pathPattern = "/api/v1/restaurants/{restaurantId}/menu"

@@ -7,6 +7,7 @@ properties:
   menu_item_id:
     type: string
     format: uuid
+    description: UUID позиции в базе restaurant-demo
   quantity:
     type: integer
     minimum: 1
@@ -15,3 +16,4 @@ properties:
     type: integer
     format: int64
     minimum: 1
+    description: Версия позиции, полученная клиентом при чтении live-меню

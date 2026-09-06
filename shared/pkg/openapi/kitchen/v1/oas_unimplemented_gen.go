@@ -15,7 +15,9 @@ var _ Handler = UnimplementedHandler{}
 
 // CreateOrder implements createOrder operation.
 //
-// Создать заказ.
+// Kitchen синхронно просит restaurant-demo атомарно проверить
+// позиции и создать ресторанный заказ. При конфликте
+// меню заказ не создаётся.
 //
 // POST /api/v1/orders
 func (UnimplementedHandler) CreateOrder(ctx context.Context, req *CreateOrderRequest) (r CreateOrderRes, _ error) {
@@ -33,7 +35,8 @@ func (UnimplementedHandler) GetOrder(ctx context.Context, params GetOrderParams)
 
 // GetRestaurantMenu implements getRestaurantMenu operation.
 //
-// Получить меню ресторана.
+// Kitchen запрашивает меню непосредственно у restaurant-demo и не
+// хранит его копию.
 //
 // GET /api/v1/restaurants/{restaurantId}/menu
 func (UnimplementedHandler) GetRestaurantMenu(ctx context.Context, params GetRestaurantMenuParams) (r GetRestaurantMenuRes, _ error) {

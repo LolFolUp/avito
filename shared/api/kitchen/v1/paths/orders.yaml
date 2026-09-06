@@ -2,6 +2,9 @@ post:
   tags: [Orders]
   operationId: createOrder
   summary: Создать заказ
+  description: |
+    Kitchen синхронно просит restaurant-demo атомарно проверить позиции
+    и создать ресторанный заказ. При конфликте меню заказ не создаётся.
   requestBody:
     required: true
     content:
@@ -10,7 +13,7 @@ post:
           $ref: ../components/create_order_request.yaml
   responses:
     "201":
-      description: Заказ создан и ожидает подтверждения ресторана
+      description: Заказ атомарно проверен и принят рестораном
       content:
         application/json:
           schema:
@@ -23,3 +26,5 @@ post:
       $ref: ../components/responses/conflict.yaml
     "500":
       $ref: ../components/responses/internal_error.yaml
+    "503":
+      $ref: ../components/responses/service_unavailable.yaml

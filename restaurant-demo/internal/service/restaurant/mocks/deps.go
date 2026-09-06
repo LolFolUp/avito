@@ -18,125 +18,181 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockPartnerClient is a mock of PartnerClient interface.
-type MockPartnerClient struct {
+// MockTxManager is a mock of TxManager interface.
+type MockTxManager struct {
 	ctrl     *gomock.Controller
-	recorder *MockPartnerClientMockRecorder
+	recorder *MockTxManagerMockRecorder
 	isgomock struct{}
 }
 
-// MockPartnerClientMockRecorder is the mock recorder for MockPartnerClient.
-type MockPartnerClientMockRecorder struct {
-	mock *MockPartnerClient
+// MockTxManagerMockRecorder is the mock recorder for MockTxManager.
+type MockTxManagerMockRecorder struct {
+	mock *MockTxManager
 }
 
-// NewMockPartnerClient creates a new mock instance.
-func NewMockPartnerClient(ctrl *gomock.Controller) *MockPartnerClient {
-	mock := &MockPartnerClient{ctrl: ctrl}
-	mock.recorder = &MockPartnerClientMockRecorder{mock}
+// NewMockTxManager creates a new mock instance.
+func NewMockTxManager(ctrl *gomock.Controller) *MockTxManager {
+	mock := &MockTxManager{ctrl: ctrl}
+	mock.recorder = &MockTxManagerMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockPartnerClient) EXPECT() *MockPartnerClientMockRecorder {
+func (m *MockTxManager) EXPECT() *MockTxManagerMockRecorder {
 	return m.recorder
 }
 
-// ListOrders mocks base method.
-func (m *MockPartnerClient) ListOrders(ctx context.Context, restaurantID uuid.UUID, status model.OrderStatus, pageSize int, pageToken string) (model.OrderPage, error) {
+// Do mocks base method.
+func (m *MockTxManager) Do(ctx context.Context, fn func(context.Context) error) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListOrders", ctx, restaurantID, status, pageSize, pageToken)
-	ret0, _ := ret[0].(model.OrderPage)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "Do", ctx, fn)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
-// ListOrders indicates an expected call of ListOrders.
-func (mr *MockPartnerClientMockRecorder) ListOrders(ctx, restaurantID, status, pageSize, pageToken any) *gomock.Call {
+// Do indicates an expected call of Do.
+func (mr *MockTxManagerMockRecorder) Do(ctx, fn any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListOrders", reflect.TypeOf((*MockPartnerClient)(nil).ListOrders), ctx, restaurantID, status, pageSize, pageToken)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Do", reflect.TypeOf((*MockTxManager)(nil).Do), ctx, fn)
 }
 
-// SyncMenu mocks base method.
-func (m *MockPartnerClient) SyncMenu(ctx context.Context, restaurantID uuid.UUID, menu []model.MenuItem) (model.MenuSyncResult, error) {
+// MockRestaurantRepository is a mock of RestaurantRepository interface.
+type MockRestaurantRepository struct {
+	ctrl     *gomock.Controller
+	recorder *MockRestaurantRepositoryMockRecorder
+	isgomock struct{}
+}
+
+// MockRestaurantRepositoryMockRecorder is the mock recorder for MockRestaurantRepository.
+type MockRestaurantRepositoryMockRecorder struct {
+	mock *MockRestaurantRepository
+}
+
+// NewMockRestaurantRepository creates a new mock instance.
+func NewMockRestaurantRepository(ctrl *gomock.Controller) *MockRestaurantRepository {
+	mock := &MockRestaurantRepository{ctrl: ctrl}
+	mock.recorder = &MockRestaurantRepositoryMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRestaurantRepository) EXPECT() *MockRestaurantRepositoryMockRecorder {
+	return m.recorder
+}
+
+// CreateOrder mocks base method.
+func (m *MockRestaurantRepository) CreateOrder(ctx context.Context, order model.Order) (model.Order, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SyncMenu", ctx, restaurantID, menu)
-	ret0, _ := ret[0].(model.MenuSyncResult)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// SyncMenu indicates an expected call of SyncMenu.
-func (mr *MockPartnerClientMockRecorder) SyncMenu(ctx, restaurantID, menu any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncMenu", reflect.TypeOf((*MockPartnerClient)(nil).SyncMenu), ctx, restaurantID, menu)
-}
-
-// UpdateOrderStatus mocks base method.
-func (m *MockPartnerClient) UpdateOrderStatus(ctx context.Context, restaurantID, orderID uuid.UUID, expectedStatus, newStatus model.OrderStatus, reason string) (model.Order, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateOrderStatus", ctx, restaurantID, orderID, expectedStatus, newStatus, reason)
+	ret := m.ctrl.Call(m, "CreateOrder", ctx, order)
 	ret0, _ := ret[0].(model.Order)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// UpdateOrderStatus indicates an expected call of UpdateOrderStatus.
-func (mr *MockPartnerClientMockRecorder) UpdateOrderStatus(ctx, restaurantID, orderID, expectedStatus, newStatus, reason any) *gomock.Call {
+// CreateOrder indicates an expected call of CreateOrder.
+func (mr *MockRestaurantRepositoryMockRecorder) CreateOrder(ctx, order any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderStatus", reflect.TypeOf((*MockPartnerClient)(nil).UpdateOrderStatus), ctx, restaurantID, orderID, expectedStatus, newStatus, reason)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrder", reflect.TypeOf((*MockRestaurantRepository)(nil).CreateOrder), ctx, order)
 }
 
-// MockMenuRepository is a mock of MenuRepository interface.
-type MockMenuRepository struct {
-	ctrl     *gomock.Controller
-	recorder *MockMenuRepositoryMockRecorder
-	isgomock struct{}
-}
-
-// MockMenuRepositoryMockRecorder is the mock recorder for MockMenuRepository.
-type MockMenuRepositoryMockRecorder struct {
-	mock *MockMenuRepository
-}
-
-// NewMockMenuRepository creates a new mock instance.
-func NewMockMenuRepository(ctrl *gomock.Controller) *MockMenuRepository {
-	mock := &MockMenuRepository{ctrl: ctrl}
-	mock.recorder = &MockMenuRepositoryMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockMenuRepository) EXPECT() *MockMenuRepositoryMockRecorder {
-	return m.recorder
-}
-
-// ItemsAvailable mocks base method.
-func (m *MockMenuRepository) ItemsAvailable(ctx context.Context, externalIDs []string) (bool, error) {
+// CreateOrderItems mocks base method.
+func (m *MockRestaurantRepository) CreateOrderItems(ctx context.Context, orderID uuid.UUID, items []model.OrderItem) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ItemsAvailable", ctx, externalIDs)
-	ret0, _ := ret[0].(bool)
+	ret := m.ctrl.Call(m, "CreateOrderItems", ctx, orderID, items)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateOrderItems indicates an expected call of CreateOrderItems.
+func (mr *MockRestaurantRepositoryMockRecorder) CreateOrderItems(ctx, orderID, items any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrderItems", reflect.TypeOf((*MockRestaurantRepository)(nil).CreateOrderItems), ctx, orderID, items)
+}
+
+// CreateOrderStatusHistory mocks base method.
+func (m *MockRestaurantRepository) CreateOrderStatusHistory(ctx context.Context, history model.OrderStatusHistory) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateOrderStatusHistory", ctx, history)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateOrderStatusHistory indicates an expected call of CreateOrderStatusHistory.
+func (mr *MockRestaurantRepositoryMockRecorder) CreateOrderStatusHistory(ctx, history any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrderStatusHistory", reflect.TypeOf((*MockRestaurantRepository)(nil).CreateOrderStatusHistory), ctx, history)
+}
+
+// GetMenuItemsForUpdate mocks base method.
+func (m *MockRestaurantRepository) GetMenuItemsForUpdate(ctx context.Context, restaurantID uuid.UUID, itemIDs []uuid.UUID) ([]model.MenuItem, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMenuItemsForUpdate", ctx, restaurantID, itemIDs)
+	ret0, _ := ret[0].([]model.MenuItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ItemsAvailable indicates an expected call of ItemsAvailable.
-func (mr *MockMenuRepositoryMockRecorder) ItemsAvailable(ctx, externalIDs any) *gomock.Call {
+// GetMenuItemsForUpdate indicates an expected call of GetMenuItemsForUpdate.
+func (mr *MockRestaurantRepositoryMockRecorder) GetMenuItemsForUpdate(ctx, restaurantID, itemIDs any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ItemsAvailable", reflect.TypeOf((*MockMenuRepository)(nil).ItemsAvailable), ctx, externalIDs)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMenuItemsForUpdate", reflect.TypeOf((*MockRestaurantRepository)(nil).GetMenuItemsForUpdate), ctx, restaurantID, itemIDs)
+}
+
+// GetOrder mocks base method.
+func (m *MockRestaurantRepository) GetOrder(ctx context.Context, id uuid.UUID) (model.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrder", ctx, id)
+	ret0, _ := ret[0].(model.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrder indicates an expected call of GetOrder.
+func (mr *MockRestaurantRepositoryMockRecorder) GetOrder(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrder", reflect.TypeOf((*MockRestaurantRepository)(nil).GetOrder), ctx, id)
+}
+
+// GetRestaurant mocks base method.
+func (m *MockRestaurantRepository) GetRestaurant(ctx context.Context, id uuid.UUID) (model.Restaurant, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRestaurant", ctx, id)
+	ret0, _ := ret[0].(model.Restaurant)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRestaurant indicates an expected call of GetRestaurant.
+func (mr *MockRestaurantRepositoryMockRecorder) GetRestaurant(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRestaurant", reflect.TypeOf((*MockRestaurantRepository)(nil).GetRestaurant), ctx, id)
 }
 
 // ListMenu mocks base method.
-func (m *MockMenuRepository) ListMenu(ctx context.Context) ([]model.MenuItem, error) {
+func (m *MockRestaurantRepository) ListMenu(ctx context.Context, restaurantID uuid.UUID) ([]model.MenuItem, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListMenu", ctx)
+	ret := m.ctrl.Call(m, "ListMenu", ctx, restaurantID)
 	ret0, _ := ret[0].([]model.MenuItem)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListMenu indicates an expected call of ListMenu.
-func (mr *MockMenuRepositoryMockRecorder) ListMenu(ctx any) *gomock.Call {
+func (mr *MockRestaurantRepositoryMockRecorder) ListMenu(ctx, restaurantID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListMenu", reflect.TypeOf((*MockMenuRepository)(nil).ListMenu), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListMenu", reflect.TypeOf((*MockRestaurantRepository)(nil).ListMenu), ctx, restaurantID)
+}
+
+// ReserveMenuItem mocks base method.
+func (m *MockRestaurantRepository) ReserveMenuItem(ctx context.Context, restaurantID, itemID uuid.UUID, quantity int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReserveMenuItem", ctx, restaurantID, itemID, quantity)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ReserveMenuItem indicates an expected call of ReserveMenuItem.
+func (mr *MockRestaurantRepositoryMockRecorder) ReserveMenuItem(ctx, restaurantID, itemID, quantity any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReserveMenuItem", reflect.TypeOf((*MockRestaurantRepository)(nil).ReserveMenuItem), ctx, restaurantID, itemID, quantity)
 }

@@ -13,13 +13,13 @@ import (
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/service/order/mocks"
 )
 
-func TestCreateReturnsMenuChangedBeforeWritingOrder(t *testing.T) {
+func TestCreateReturnsRestaurantMenuConflictBeforeKitchenTransaction(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	restaurants := mocks.NewMockRestaurantRepository(ctrl)
-	menu := mocks.NewMockMenuRepository(ctrl)
+	partner := mocks.NewMockRestaurantClient(ctrl)
 	orders := mocks.NewMockOrderRepository(ctrl)
 	txManager := mocks.NewMockTxManager(ctrl)
-	service := orderservice.New(restaurants, menu, orders, txManager)
+	service := orderservice.New(restaurants, partner, orders, txManager)
 
 	restaurantID := uuid.New()
 	menuItemID := uuid.New()
@@ -36,23 +36,13 @@ func TestCreateReturnsMenuChangedBeforeWritingOrder(t *testing.T) {
 		}},
 	}
 
-	txManager.EXPECT().Do(ctx, gomock.Any()).DoAndReturn(
-		func(txCtx context.Context, fn func(context.Context) error) error { return fn(txCtx) },
-	)
-	restaurants.EXPECT().GetRestaurantForUpdate(ctx, restaurantID).Return(model.Restaurant{
+	restaurants.EXPECT().GetRestaurant(ctx, restaurantID).Return(model.Restaurant{
 		ID: restaurantID, IsActive: true, AcceptingOrders: true, Currency: "RUB",
 	}, nil)
-	menu.EXPECT().GetMenuItemsForUpdate(ctx, restaurantID, []uuid.UUID{menuItemID}).Return([]model.MenuItem{{
-		ID:           menuItemID,
-		RestaurantID: restaurantID,
-		ExternalID:   "pizza-1",
-		Name:         "Margherita",
-		PriceMinor:   59000,
-		Currency:     "RUB",
-		IsActive:     true,
-		IsAvailable:  true,
-		Version:      2,
-	}}, nil)
+	partner.EXPECT().CreateOrder(ctx, gomock.Any(), input).Return(
+		model.Order{},
+		errs.FailedPrecondition(errs.CodeMenuChanged, "menu changed", nil),
+	)
 
 	_, err := service.Create(ctx, input)
 	domainErr, ok := errs.As(err)

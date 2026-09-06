@@ -82,19 +82,41 @@ func TestOrderIsAcceptedByRestaurantDemo(t *testing.T) {
 	if err := json.NewDecoder(response.Body).Decode(&order); err != nil {
 		t.Fatalf("decode order: %v", err)
 	}
-	if order.Status != "pending_confirmation" || order.TotalMinor <= 0 {
+	if order.Status != "accepted" || order.TotalMinor <= 0 {
 		t.Fatalf("unexpected created order: %#v", order)
 	}
-
-	deadline := time.Now().Add(10 * time.Second)
-	for time.Now().Before(deadline) {
-		getJSON(t, client, fmt.Sprintf("%s/api/v1/orders/%s", baseURL, order.ID), &order)
-		if order.Status == "accepted" {
-			return
-		}
-		time.Sleep(250 * time.Millisecond)
+	getJSON(t, client, fmt.Sprintf("%s/api/v1/orders/%s", baseURL, order.ID), &order)
+	if order.Status != "accepted" {
+		t.Fatalf("stored order has status %q", order.Status)
 	}
-	t.Fatalf("order %s was not accepted, last status %q", order.ID, order.Status)
+
+	body["items"] = []map[string]any{{
+		"menu_item_id":     selected.ID,
+		"quantity":         1,
+		"observed_version": selected.Version + 1,
+	}}
+	stalePayload, err := json.Marshal(body)
+	if err != nil {
+		t.Fatalf("marshal stale order: %v", err)
+	}
+	staleRequest, err := http.NewRequest(
+		http.MethodPost,
+		baseURL+"/api/v1/orders",
+		bytes.NewReader(stalePayload),
+	)
+	if err != nil {
+		t.Fatalf("create stale request: %v", err)
+	}
+	staleRequest.Header.Set("Content-Type", "application/json")
+	staleResponse, err := client.Do(staleRequest)
+	if err != nil {
+		t.Fatalf("create stale order: %v", err)
+	}
+	defer staleResponse.Body.Close()
+	if staleResponse.StatusCode != http.StatusConflict {
+		message, _ := io.ReadAll(staleResponse.Body)
+		t.Fatalf("stale order status = %d: %s", staleResponse.StatusCode, message)
+	}
 }
 
 func getJSON(t *testing.T, client *http.Client, url string, target any) {

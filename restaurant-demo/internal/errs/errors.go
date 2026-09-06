@@ -1,6 +1,9 @@
 package errs
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Kind string
 
@@ -17,6 +20,34 @@ type Error struct {
 	Kind    Kind
 	Message string
 	Cause   error
+}
+
+func InvalidArgument(message string) error {
+	return &Error{Kind: KindInvalidArgument, Message: message}
+}
+
+func NotFound(message string) error {
+	return &Error{Kind: KindNotFound, Message: message}
+}
+
+func FailedPrecondition(message string) error {
+	return &Error{Kind: KindFailedPrecondition, Message: message}
+}
+
+func AlreadyExists(message string) error {
+	return &Error{Kind: KindAlreadyExists, Message: message}
+}
+
+func Internal(message string, cause error) error {
+	return &Error{Kind: KindInternal, Message: message, Cause: cause}
+}
+
+func As(err error) (*Error, bool) {
+	var domainError *Error
+	if !errors.As(err, &domainError) {
+		return nil, false
+	}
+	return domainError, true
 }
 
 func (e *Error) Error() string {

@@ -1,7 +1,8 @@
 version: "3"
 
 vars:
-  DATABASE_URL: '{{default "postgres://kitchen:kitchen@localhost:5432/kitchen?sslmode=disable" .DATABASE_URL}}'
+  KITCHEN_DATABASE_URL: '{{default "postgres://kitchen:kitchen@localhost:15432/kitchen?sslmode=disable" .KITCHEN_DATABASE_URL}}'
+  RESTAURANT_DATABASE_URL: '{{default "postgres://restaurant:restaurant@localhost:15433/restaurant?sslmode=disable" .RESTAURANT_DATABASE_URL}}'
 
 tasks:
   gen:
@@ -36,21 +37,21 @@ tasks:
     desc: Generate mocks from dependency interfaces
     sources:
       - kitchen/internal/api/kitchen/v1/deps.go
-      - kitchen/internal/api/partner/v1/deps.go
       - kitchen/internal/service/catalog/deps.go
       - kitchen/internal/service/order/deps.go
+      - restaurant-demo/internal/api/partner/v1/deps.go
       - restaurant-demo/internal/service/restaurant/deps.go
     generates:
       - kitchen/internal/api/kitchen/v1/mocks/deps.go
-      - kitchen/internal/api/partner/v1/mocks/deps.go
       - kitchen/internal/service/catalog/mocks/deps.go
       - kitchen/internal/service/order/mocks/deps.go
+      - restaurant-demo/internal/api/partner/v1/mocks/deps.go
       - restaurant-demo/internal/service/restaurant/mocks/deps.go
     cmds:
       - go tool mockgen -source=kitchen/internal/api/kitchen/v1/deps.go -destination=kitchen/internal/api/kitchen/v1/mocks/deps.go -package=mocks
-      - go tool mockgen -source=kitchen/internal/api/partner/v1/deps.go -destination=kitchen/internal/api/partner/v1/mocks/deps.go -package=mocks
       - go tool mockgen -source=kitchen/internal/service/catalog/deps.go -destination=kitchen/internal/service/catalog/mocks/deps.go -package=mocks
       - go tool mockgen -source=kitchen/internal/service/order/deps.go -destination=kitchen/internal/service/order/mocks/deps.go -package=mocks
+      - go tool mockgen -source=restaurant-demo/internal/api/partner/v1/deps.go -destination=restaurant-demo/internal/api/partner/v1/mocks/deps.go -package=mocks
       - go tool mockgen -source=restaurant-demo/internal/service/restaurant/deps.go -destination=restaurant-demo/internal/service/restaurant/mocks/deps.go -package=mocks
 
   up:
@@ -59,9 +60,9 @@ tasks:
       - docker compose up --build -d
 
   db:up:
-    desc: Start only local PostgreSQL
+    desc: Start both local PostgreSQL databases
     cmds:
-      - docker compose up -d postgres
+      - docker compose up -d kitchen-postgres restaurant-postgres
 
   build:
     desc: Build application images
@@ -79,19 +80,36 @@ tasks:
       - docker compose logs -f
 
   migrate:
-    desc: Apply all database migrations
+    desc: Apply Kitchen and Restaurant database migrations
     cmds:
-      - docker compose run --rm migrate
+      - docker compose run --build --rm kitchen-migrate
+      - docker compose run --build --rm restaurant-migrate
 
-  migrate:down:
-    desc: Roll back the latest database migration
+  migrate:kitchen:
+    desc: Apply Kitchen database migrations
     cmds:
-      - go tool goose -dir db/migrations postgres "{{.DATABASE_URL}}" down
+      - docker compose run --build --rm kitchen-migrate
+
+  migrate:restaurant:
+    desc: Apply Restaurant database migrations
+    cmds:
+      - docker compose run --build --rm restaurant-migrate
+
+  migrate:kitchen:down:
+    desc: Roll back the latest Kitchen migration
+    cmds:
+      - go tool goose -dir db/migrations/kitchen postgres "{{.KITCHEN_DATABASE_URL}}" down
+
+  migrate:restaurant:down:
+    desc: Roll back the latest Restaurant migration
+    cmds:
+      - go tool goose -dir db/migrations/restaurant postgres "{{.RESTAURANT_DATABASE_URL}}" down
 
   migrate:status:
-    desc: Show database migration status
+    desc: Show migration status for both databases
     cmds:
-      - go tool goose -dir db/migrations postgres "{{.DATABASE_URL}}" status
+      - go tool goose -dir db/migrations/kitchen postgres "{{.KITCHEN_DATABASE_URL}}" status
+      - go tool goose -dir db/migrations/restaurant postgres "{{.RESTAURANT_DATABASE_URL}}" status
 
   test:
     desc: Run unit tests
@@ -99,14 +117,15 @@ tasks:
       - go test ./...
 
   test:integration:
-    desc: Run PostgreSQL repository integration tests
+    desc: Run PostgreSQL integration tests for both services
     cmds:
-      - go test -tags=integration ./kitchen/internal/repository/kitchen
+      - TEST_DATABASE_URL="{{.KITCHEN_DATABASE_URL}}" go test -count=1 -tags=integration ./kitchen/internal/repository/kitchen
+      - RESTAURANT_TEST_DATABASE_URL="{{.RESTAURANT_DATABASE_URL}}" go test -count=1 -tags=integration ./restaurant-demo/internal/repository/restaurant
 
   test:e2e:
     desc: Run end-to-end tests against a running Compose stack
     cmds:
-      - go test -tags=e2e ./tests/e2e
+      - go test -count=1 -tags=e2e ./tests/e2e
 
   lint:
     desc: Run static and contract checks

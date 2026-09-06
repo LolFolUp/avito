@@ -8,20 +8,13 @@ import (
 )
 
 func main() {
-	config, err := app.ConfigFromEnv()
-	if err != nil {
-		log.Fatal(err)
-	}
+	config := app.ConfigFromEnv()
 
-	application, err := app.New(config)
+	application, err := app.New(context.Background(), config)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func() {
-		if err := application.Close(); err != nil {
-			log.Printf("close application: %v", err)
-		}
-	}()
+	defer application.Close()
 
 	if err := application.Run(context.Background()); err != nil {
 		log.Fatal(err)

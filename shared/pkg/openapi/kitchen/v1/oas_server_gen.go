@@ -10,7 +10,9 @@ import (
 type Handler interface {
 	// CreateOrder implements createOrder operation.
 	//
-	// Создать заказ.
+	// Kitchen синхронно просит restaurant-demo атомарно проверить
+	// позиции и создать ресторанный заказ. При конфликте
+	// меню заказ не создаётся.
 	//
 	// POST /api/v1/orders
 	CreateOrder(ctx context.Context, req *CreateOrderRequest) (CreateOrderRes, error)
@@ -22,7 +24,8 @@ type Handler interface {
 	GetOrder(ctx context.Context, params GetOrderParams) (GetOrderRes, error)
 	// GetRestaurantMenu implements getRestaurantMenu operation.
 	//
-	// Получить меню ресторана.
+	// Kitchen запрашивает меню непосредственно у restaurant-demo и не
+	// хранит его копию.
 	//
 	// GET /api/v1/restaurants/{restaurantId}/menu
 	GetRestaurantMenu(ctx context.Context, params GetRestaurantMenuParams) (GetRestaurantMenuRes, error)

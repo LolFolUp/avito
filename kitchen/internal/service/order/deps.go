@@ -9,11 +9,11 @@ import (
 )
 
 type RestaurantRepository interface {
-	GetRestaurantForUpdate(ctx context.Context, id uuid.UUID) (model.Restaurant, error)
+	GetRestaurant(ctx context.Context, id uuid.UUID) (model.Restaurant, error)
 }
 
-type MenuRepository interface {
-	GetMenuItemsForUpdate(ctx context.Context, restaurantID uuid.UUID, itemIDs []uuid.UUID) ([]model.MenuItem, error)
+type RestaurantClient interface {
+	CreateOrder(ctx context.Context, orderID uuid.UUID, input model.CreateOrder) (model.Order, error)
 }
 
 type OrderRepository interface {

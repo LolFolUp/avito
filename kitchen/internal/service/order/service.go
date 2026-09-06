@@ -2,20 +2,20 @@ package order
 
 type Service struct {
 	restaurants RestaurantRepository
-	menu        MenuRepository
+	partner     RestaurantClient
 	orders      OrderRepository
 	txManager   TxManager
 }
 
 func New(
 	restaurants RestaurantRepository,
-	menu MenuRepository,
+	partner RestaurantClient,
 	orders OrderRepository,
 	txManager TxManager,
 ) *Service {
 	return &Service{
 		restaurants: restaurants,
-		menu:        menu,
+		partner:     partner,
 		orders:      orders,
 		txManager:   txManager,
 	}

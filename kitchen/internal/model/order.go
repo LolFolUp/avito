@@ -34,10 +34,8 @@ type Order struct {
 }
 
 type OrderItem struct {
-	ID             uuid.UUID
 	OrderID        uuid.UUID
 	MenuItemID     uuid.UUID
-	ExternalItemID string
 	Name           string
 	UnitPriceMinor int64
 	Quantity       int
@@ -72,10 +70,9 @@ type OrderPage struct {
 }
 
 type OrderStatusHistory struct {
-	ID         int64
-	OrderID    uuid.UUID
-	FromStatus *OrderStatus
-	ToStatus   OrderStatus
-	Reason     string
-	CreatedAt  time.Time
+	ID        int64
+	OrderID   uuid.UUID
+	Status    OrderStatus
+	Reason    string
+	CreatedAt time.Time
 }

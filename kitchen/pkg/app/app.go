@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,53 +15,48 @@ import (
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/health"
-	healthpb "google.golang.org/grpc/health/grpc_health_v1"
-
-	openapi "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/shared/pkg/openapi/kitchen/v1"
-	partnerpb "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/shared/pkg/proto/partner/v1"
+	"google.golang.org/grpc/credentials/insecure"
 
 	kitchenapi "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/api/kitchen/v1"
-	partnerapi "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/api/partner/v1"
+	partnerclient "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/client/grpc/partner/v1"
 	kitchenrepo "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/repository/kitchen"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/service/catalog"
 	orderservice "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/service/order"
+	openapi "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/shared/pkg/openapi/kitchen/v1"
 )
 
 const (
-	defaultDatabaseURL   = "postgres://kitchen:kitchen@localhost:5432/kitchen?sslmode=disable"
-	defaultHTTPAddress   = ":8080"
-	defaultGRPCAddress   = ":9090"
-	defaultPingTimeout   = 5 * time.Second
-	defaultShutdown      = 10 * time.Second
-	defaultHeaderTimeout = 5 * time.Second
+	defaultDatabaseURL           = "postgres://kitchen:kitchen@localhost:15432/kitchen?sslmode=disable"
+	defaultHTTPAddress           = ":8080"
+	defaultRestaurantGRPCAddress = "localhost:9090"
+	defaultPingTimeout           = 5 * time.Second
+	defaultShutdown              = 10 * time.Second
+	defaultHeaderTimeout         = 5 * time.Second
 )
 
 type Config struct {
-	DatabaseURL     string
-	HTTPAddress     string
-	GRPCAddress     string
-	PingTimeout     time.Duration
-	ShutdownTimeout time.Duration
+	DatabaseURL           string
+	HTTPAddress           string
+	RestaurantGRPCAddress string
+	PingTimeout           time.Duration
+	ShutdownTimeout       time.Duration
 }
 
 type App struct {
-	pool            *pgxpool.Pool
-	httpServer      *http.Server
-	grpcServer      *grpc.Server
-	grpcHealth      *health.Server
-	grpcAddress     string
-	shutdownTimeout time.Duration
-	logger          *slog.Logger
+	pool              *pgxpool.Pool
+	httpServer        *http.Server
+	partnerConnection *grpc.ClientConn
+	shutdownTimeout   time.Duration
+	logger            *slog.Logger
 }
 
 func ConfigFromEnv() Config {
 	return Config{
-		DatabaseURL:     envOrDefault("DATABASE_URL", defaultDatabaseURL),
-		HTTPAddress:     envOrDefault("KITCHEN_HTTP_ADDR", defaultHTTPAddress),
-		GRPCAddress:     envOrDefault("KITCHEN_GRPC_ADDR", defaultGRPCAddress),
-		PingTimeout:     defaultPingTimeout,
-		ShutdownTimeout: defaultShutdown,
+		DatabaseURL:           envOrDefault("DATABASE_URL", defaultDatabaseURL),
+		HTTPAddress:           envOrDefault("KITCHEN_HTTP_ADDR", defaultHTTPAddress),
+		RestaurantGRPCAddress: envOrDefault("RESTAURANT_GRPC_ADDR", defaultRestaurantGRPCAddress),
+		PingTimeout:           defaultPingTimeout,
+		ShutdownTimeout:       defaultShutdown,
 	}
 }
 
@@ -96,22 +90,26 @@ func New(ctx context.Context, cfg Config) (*App, error) {
 		return nil, fmt.Errorf("create transaction manager: %w", err)
 	}
 
+	partnerConnection, err := grpc.NewClient(
+		cfg.RestaurantGRPCAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		pool.Close()
+		return nil, fmt.Errorf("create restaurant gRPC connection: %w", err)
+	}
+	partnerClient := partnerclient.New(partnerConnection)
 	repository := kitchenrepo.New(pool, trmpgx.DefaultCtxGetter)
-	catalogService := catalog.New(repository, repository, txManager)
-	orderService := orderservice.New(repository, repository, repository, txManager)
+	catalogService := catalog.New(repository, partnerClient)
+	orderService := orderservice.New(repository, partnerClient, repository, txManager)
 
 	restAPI := kitchenapi.New(catalogService, orderService, pool, logger)
 	httpHandler, err := openapi.NewServer(restAPI)
 	if err != nil {
+		_ = partnerConnection.Close()
 		pool.Close()
 		return nil, fmt.Errorf("create HTTP handler: %w", err)
 	}
-
-	grpcServer := grpc.NewServer()
-	partnerpb.RegisterPartnerServiceServer(grpcServer, partnerapi.New(catalogService, orderService, logger))
-	grpcHealth := health.NewServer()
-	healthpb.RegisterHealthServer(grpcServer, grpcHealth)
-	grpcHealth.SetServingStatus("", healthpb.HealthCheckResponse_SERVING)
 
 	shutdownTimeout := cfg.ShutdownTimeout
 	if shutdownTimeout <= 0 {
@@ -119,15 +117,13 @@ func New(ctx context.Context, cfg Config) (*App, error) {
 	}
 
 	return &App{
-		pool: pool,
+		pool:              pool,
+		partnerConnection: partnerConnection,
 		httpServer: &http.Server{
 			Addr:              cfg.HTTPAddress,
 			Handler:           httpHandler,
 			ReadHeaderTimeout: defaultHeaderTimeout,
 		},
-		grpcServer:      grpcServer,
-		grpcHealth:      grpcHealth,
-		grpcAddress:     cfg.GRPCAddress,
 		shutdownTimeout: shutdownTimeout,
 		logger:          logger,
 	}, nil
@@ -137,26 +133,17 @@ func (a *App) Run(ctx context.Context) error {
 	ctx, stop := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	listener, err := net.Listen("tcp", a.grpcAddress)
-	if err != nil {
-		return fmt.Errorf("listen gRPC: %w", err)
-	}
-
-	errorsChannel := make(chan error, 2)
+	errorsChannel := make(chan error, 1)
 	go func() {
 		a.logger.Info("HTTP server started", "address", a.httpServer.Addr)
 		errorsChannel <- a.httpServer.ListenAndServe()
-	}()
-	go func() {
-		a.logger.Info("gRPC server started", "address", a.grpcAddress)
-		errorsChannel <- a.grpcServer.Serve(listener)
 	}()
 
 	var runErr error
 	select {
 	case <-ctx.Done():
 	case runErr = <-errorsChannel:
-		if errors.Is(runErr, http.ErrServerClosed) || errors.Is(runErr, grpc.ErrServerStopped) {
+		if errors.Is(runErr, http.ErrServerClosed) {
 			runErr = nil
 		}
 	}
@@ -169,28 +156,17 @@ func (a *App) Run(ctx context.Context) error {
 }
 
 func (a *App) Close() {
+	_ = a.partnerConnection.Close()
 	a.pool.Close()
 }
 
 func (a *App) shutdown() {
-	a.grpcHealth.SetServingStatus("", healthpb.HealthCheckResponse_NOT_SERVING)
-
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), a.shutdownTimeout)
 	defer cancel()
 	if err := a.httpServer.Shutdown(shutdownCtx); err != nil {
 		a.logger.Error("shutdown HTTP server", "error", err)
 	}
 
-	stopped := make(chan struct{})
-	go func() {
-		a.grpcServer.GracefulStop()
-		close(stopped)
-	}()
-	select {
-	case <-stopped:
-	case <-shutdownCtx.Done():
-		a.grpcServer.Stop()
-	}
 }
 
 func envOrDefault(name, fallback string) string {

@@ -49,6 +49,10 @@ func AlreadyExists(resource string) error {
 	return New(KindAlreadyExists, CodeAlreadyExists, resource+" already exists", nil)
 }
 
+func Unavailable(operation string, cause error) error {
+	return Wrap(KindUnavailable, CodeUnavailable, operation+" is unavailable", cause)
+}
+
 func Internal(operation string, cause error) error {
 	return Wrap(KindInternal, CodeInternal, operation+" failed", cause)
 }

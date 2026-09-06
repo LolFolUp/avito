@@ -2,14 +2,12 @@ package catalog
 
 type Service struct {
 	restaurants RestaurantRepository
-	menu        MenuRepository
-	txManager   TxManager
+	partner     RestaurantClient
 }
 
-func New(restaurants RestaurantRepository, menu MenuRepository, txManager TxManager) *Service {
+func New(restaurants RestaurantRepository, partner RestaurantClient) *Service {
 	return &Service{
 		restaurants: restaurants,
-		menu:        menu,
-		txManager:   txManager,
+		partner:     partner,
 	}
 }

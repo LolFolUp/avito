@@ -63,12 +63,10 @@ func (s *Service) UpdateStatus(
 		if err := s.orders.UpdateOrderStatus(txCtx, orderID, newStatus, reason); err != nil {
 			return err
 		}
-		fromStatus := current.Status
 		if err := s.orders.CreateOrderStatusHistory(txCtx, model.OrderStatusHistory{
-			OrderID:    orderID,
-			FromStatus: &fromStatus,
-			ToStatus:   newStatus,
-			Reason:     reason,
+			OrderID: orderID,
+			Status:  newStatus,
+			Reason:  reason,
 		}); err != nil {
 			return err
 		}

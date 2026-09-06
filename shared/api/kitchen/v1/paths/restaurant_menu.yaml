@@ -1,12 +1,13 @@
 get:
   tags: [Restaurants]
   operationId: getRestaurantMenu
-  summary: Получить меню ресторана
+  summary: Получить актуальное меню ресторана
+  description: Kitchen запрашивает меню непосредственно у restaurant-demo и не хранит его копию.
   parameters:
     - $ref: ../components/params/restaurant_id.yaml
   responses:
     "200":
-      description: Актуальное меню ресторана
+      description: Live-меню из хранилища restaurant-demo
       content:
         application/json:
           schema:
@@ -17,3 +18,5 @@ get:
       $ref: ../components/responses/not_found.yaml
     "500":
       $ref: ../components/responses/internal_error.yaml
+    "503":
+      $ref: ../components/responses/service_unavailable.yaml

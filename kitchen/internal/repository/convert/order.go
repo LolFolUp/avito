@@ -24,10 +24,8 @@ func OrderToModel(source record.Order, items []record.OrderItem) model.Order {
 
 func OrderItemToModel(source record.OrderItem) model.OrderItem {
 	return model.OrderItem{
-		ID:             source.ID,
 		OrderID:        source.OrderID,
 		MenuItemID:     source.MenuItemID,
-		ExternalItemID: source.ExternalItemID,
 		Name:           source.NameSnapshot,
 		UnitPriceMinor: source.UnitPriceMinor,
 		Quantity:       source.Quantity,

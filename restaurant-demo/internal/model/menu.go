@@ -1,17 +1,30 @@
 package model
 
+import "github.com/google/uuid"
+
+// MenuItem описывает позицию меню во внутренней модели restaurant-demo.
 type MenuItem struct {
-	ExternalID  string
-	Name        string
-	Description string
-	PriceMinor  int64
-	Currency    string
-	IsActive    bool
-	IsAvailable bool
+	ID                uuid.UUID
+	RestaurantID      uuid.UUID
+	Name              string
+	Description       string
+	PriceMinor        int64
+	Currency          string
+	IsActive          bool
+	IsAvailable       bool
+	AvailableQuantity int
+	Version           int64
 }
 
-type MenuSyncResult struct {
-	CreatedCount     int
-	UpdatedCount     int
-	DeactivatedCount int
+type Restaurant struct {
+	ID       uuid.UUID
+	Name     string
+	Currency string
+}
+
+type MenuItemConflict struct {
+	MenuItemID       uuid.UUID
+	RequestedVersion int64
+	CurrentVersion   int64
+	IsAvailable      bool
 }

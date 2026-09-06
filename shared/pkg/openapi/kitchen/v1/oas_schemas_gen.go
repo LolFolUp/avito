@@ -24,9 +24,11 @@ func (*CreateOrderInternalServerError) createOrderRes() {}
 
 // Ref: #
 type CreateOrderItem struct {
-	MenuItemID      uuid.UUID `json:"menu_item_id"`
-	Quantity        int       `json:"quantity"`
-	ObservedVersion int64     `json:"observed_version"`
+	// UUID позиции в базе restaurant-demo.
+	MenuItemID uuid.UUID `json:"menu_item_id"`
+	Quantity   int       `json:"quantity"`
+	// Версия позиции, полученная клиентом при чтении live-меню.
+	ObservedVersion int64 `json:"observed_version"`
 }
 
 // GetMenuItemID returns the value of MenuItemID.
@@ -121,6 +123,10 @@ func (s *CreateOrderRequest) SetDeliveryAddress(val string) {
 func (s *CreateOrderRequest) SetItems(val []CreateOrderItem) {
 	s.Items = val
 }
+
+type CreateOrderServiceUnavailable Error
+
+func (*CreateOrderServiceUnavailable) createOrderRes() {}
 
 // Ref: #
 type Error struct {
@@ -330,6 +336,10 @@ type GetRestaurantMenuNotFound Error
 
 func (*GetRestaurantMenuNotFound) getRestaurantMenuRes() {}
 
+type GetRestaurantMenuServiceUnavailable Error
+
+func (*GetRestaurantMenuServiceUnavailable) getRestaurantMenuRes() {}
+
 // Ref: #
 type HealthStatus struct {
 	Status HealthStatusStatus `json:"status"`
@@ -422,13 +432,16 @@ func (*Menu) getRestaurantMenuRes() {}
 
 // Ref: #
 type MenuItem struct {
+	// UUID позиции в базе restaurant-demo.
 	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
 	Description OptString `json:"description"`
 	PriceMinor  int64     `json:"price_minor"`
 	Currency    string    `json:"currency"`
 	IsAvailable bool      `json:"is_available"`
-	Version     int64     `json:"version"`
+	// Версия позиции для проверки конфликта при создании
+	// заказа.
+	Version int64 `json:"version"`
 }
 
 // GetID returns the value of ID.

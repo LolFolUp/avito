@@ -29,6 +29,8 @@ func errorHTTPStatus(err error) int {
 		return 404
 	case errs.KindAlreadyExists, errs.KindFailedPrecondition:
 		return 409
+	case errs.KindUnavailable:
+		return 503
 	default:
 		return 500
 	}
@@ -43,6 +45,8 @@ func createOrderError(err error) openapi.CreateOrderRes {
 		return (*openapi.CreateOrderNotFound)(problem)
 	case 409:
 		return (*openapi.CreateOrderConflict)(problem)
+	case 503:
+		return (*openapi.CreateOrderServiceUnavailable)(problem)
 	default:
 		return (*openapi.CreateOrderInternalServerError)(problem)
 	}
@@ -67,6 +71,8 @@ func restaurantMenuError(err error) openapi.GetRestaurantMenuRes {
 		return (*openapi.GetRestaurantMenuBadRequest)(problem)
 	case 404:
 		return (*openapi.GetRestaurantMenuNotFound)(problem)
+	case 503:
+		return (*openapi.GetRestaurantMenuServiceUnavailable)(problem)
 	default:
 		return (*openapi.GetRestaurantMenuInternalServerError)(problem)
 	}

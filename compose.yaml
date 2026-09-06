@@ -1,35 +1,64 @@
 services:
-  postgres:
-    image: postgres:17-alpine
+  kitchen-postgres:
+    image: ${POSTGRES_IMAGE:-postgres:17-alpine}
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-kitchen}
-      POSTGRES_USER: ${POSTGRES_USER:-kitchen}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kitchen}
+      POSTGRES_DB: ${KITCHEN_POSTGRES_DB:-kitchen}
+      POSTGRES_USER: ${KITCHEN_POSTGRES_USER:-kitchen}
+      POSTGRES_PASSWORD: ${KITCHEN_POSTGRES_PASSWORD:-kitchen}
     ports:
-      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${KITCHEN_POSTGRES_PORT:-15432}:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - kitchen-postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 2s
       timeout: 2s
       retries: 15
 
-  migrate:
+  restaurant-postgres:
+    image: ${POSTGRES_IMAGE:-postgres:17-alpine}
+    environment:
+      POSTGRES_DB: ${RESTAURANT_POSTGRES_DB:-restaurant}
+      POSTGRES_USER: ${RESTAURANT_POSTGRES_USER:-restaurant}
+      POSTGRES_PASSWORD: ${RESTAURANT_POSTGRES_PASSWORD:-restaurant}
+    ports:
+      - "127.0.0.1:${RESTAURANT_POSTGRES_PORT:-15433}:5432"
+    volumes:
+      - restaurant-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+
+  kitchen-migrate:
     build:
       context: .
       dockerfile: deploy/docker/kitchen-api.Dockerfile
       target: migrate
-    environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:-kitchen}:${POSTGRES_PASSWORD:-kitchen}@postgres:5432/${POSTGRES_DB:-kitchen}?sslmode=disable
     command:
       - -dir
-      - /migrations
+      - /migrations/kitchen
       - postgres
-      - postgres://${POSTGRES_USER:-kitchen}:${POSTGRES_PASSWORD:-kitchen}@postgres:5432/${POSTGRES_DB:-kitchen}?sslmode=disable
+      - postgres://${KITCHEN_POSTGRES_USER:-kitchen}:${KITCHEN_POSTGRES_PASSWORD:-kitchen}@kitchen-postgres:5432/${KITCHEN_POSTGRES_DB:-kitchen}?sslmode=disable
       - up
     depends_on:
-      postgres:
+      kitchen-postgres:
+        condition: service_healthy
+
+  restaurant-migrate:
+    build:
+      context: .
+      dockerfile: deploy/docker/kitchen-api.Dockerfile
+      target: migrate
+    command:
+      - -dir
+      - /migrations/restaurant
+      - postgres
+      - postgres://${RESTAURANT_POSTGRES_USER:-restaurant}:${RESTAURANT_POSTGRES_PASSWORD:-restaurant}@restaurant-postgres:5432/${RESTAURANT_POSTGRES_DB:-restaurant}?sslmode=disable
+      - up
+    depends_on:
+      restaurant-postgres:
         condition: service_healthy
 
   kitchen-api:
@@ -38,35 +67,44 @@ services:
       dockerfile: deploy/docker/kitchen-api.Dockerfile
       target: kitchen-api
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:-kitchen}:${POSTGRES_PASSWORD:-kitchen}@postgres:5432/${POSTGRES_DB:-kitchen}?sslmode=disable
+      DATABASE_URL: postgres://${KITCHEN_POSTGRES_USER:-kitchen}:${KITCHEN_POSTGRES_PASSWORD:-kitchen}@kitchen-postgres:5432/${KITCHEN_POSTGRES_DB:-kitchen}?sslmode=disable
       KITCHEN_HTTP_ADDR: :8080
-      KITCHEN_GRPC_ADDR: :9090
-      KITCHEN_LOG_LEVEL: ${KITCHEN_LOG_LEVEL:-info}
+      RESTAURANT_GRPC_ADDR: restaurant-demo:9090
     ports:
       - "127.0.0.1:${KITCHEN_HTTP_PORT:-8080}:8080"
-      - "127.0.0.1:${KITCHEN_GRPC_PORT:-9090}:9090"
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8080/readyz"]
       interval: 2s
       timeout: 2s
       retries: 15
     depends_on:
-      postgres:
+      kitchen-postgres:
         condition: service_healthy
-      migrate:
+      kitchen-migrate:
         condition: service_completed_successfully
+      restaurant-demo:
+        condition: service_healthy
 
   restaurant-demo:
     build:
       context: .
       dockerfile: deploy/docker/restaurant-demo.Dockerfile
     environment:
-      KITCHEN_GRPC_ADDR: kitchen-api:9090
-      RESTAURANT_ID: ${RESTAURANT_ID:-00000000-0000-0000-0000-000000000001}
-      RESTAURANT_POLL_INTERVAL: ${RESTAURANT_POLL_INTERVAL:-2s}
+      DATABASE_URL: postgres://${RESTAURANT_POSTGRES_USER:-restaurant}:${RESTAURANT_POSTGRES_PASSWORD:-restaurant}@restaurant-postgres:5432/${RESTAURANT_POSTGRES_DB:-restaurant}?sslmode=disable
+      RESTAURANT_GRPC_ADDR: :9090
+    ports:
+      - "127.0.0.1:${RESTAURANT_GRPC_PORT:-9090}:9090"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9090"]
+      interval: 2s
+      timeout: 2s
+      retries: 15
     depends_on:
-      kitchen-api:
+      restaurant-postgres:
         condition: service_healthy
+      restaurant-migrate:
+        condition: service_completed_successfully
 
 volumes:
-  postgres-data:
+  kitchen-postgres-data:
+  restaurant-postgres-data:

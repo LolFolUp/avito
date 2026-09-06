@@ -2,7 +2,6 @@ package order
 
 import (
 	"context"
-	"math"
 	"strings"
 
 	"github.com/google/uuid"
@@ -15,122 +14,56 @@ func (s *Service) Create(ctx context.Context, input model.CreateOrder) (model.Or
 	input.CustomerName = strings.TrimSpace(input.CustomerName)
 	input.CustomerPhone = strings.TrimSpace(input.CustomerPhone)
 	input.DeliveryAddress = strings.TrimSpace(input.DeliveryAddress)
-
 	if err := validateCreateOrder(input); err != nil {
 		return model.Order{}, err
 	}
 
+	restaurant, err := s.restaurants.GetRestaurant(ctx, input.RestaurantID)
+	if err != nil {
+		return model.Order{}, err
+	}
+	if !restaurant.IsActive || !restaurant.AcceptingOrders {
+		return model.Order{}, errs.FailedPrecondition(
+			errs.CodeRestaurantNotAccepting,
+			"restaurant is not accepting orders",
+			nil,
+		)
+	}
+
+	orderID := uuid.New()
+	accepted, err := s.partner.CreateOrder(ctx, orderID, input)
+	if err != nil {
+		return model.Order{}, err
+	}
+	if accepted.ID != orderID ||
+		accepted.RestaurantID != input.RestaurantID ||
+		accepted.Status != model.OrderStatusAccepted ||
+		accepted.Currency != restaurant.Currency {
+		return model.Order{}, errs.Internal("validate restaurant order response", nil)
+	}
+
 	var created model.Order
-	err := s.txManager.Do(ctx, func(txCtx context.Context) error {
-		restaurant, err := s.restaurants.GetRestaurantForUpdate(txCtx, input.RestaurantID)
-		if err != nil {
+	err = s.txManager.Do(ctx, func(txCtx context.Context) error {
+		if err := s.orders.CreateOrder(txCtx, accepted); err != nil {
 			return err
 		}
-		if !restaurant.IsActive || !restaurant.AcceptingOrders {
-			return errs.FailedPrecondition(
-				errs.CodeRestaurantNotAccepting,
-				"restaurant is not accepting orders",
-				nil,
-			)
-		}
-
-		itemIDs := make([]uuid.UUID, 0, len(input.Items))
-		requestedByID := make(map[uuid.UUID]model.CreateOrderItem, len(input.Items))
-		for _, requested := range input.Items {
-			itemIDs = append(itemIDs, requested.MenuItemID)
-			requestedByID[requested.MenuItemID] = requested
-		}
-
-		menuItems, err := s.menu.GetMenuItemsForUpdate(txCtx, input.RestaurantID, itemIDs)
-		if err != nil {
-			return err
-		}
-		if len(menuItems) != len(requestedByID) {
-			return errs.NotFound("menu item")
-		}
-
-		conflicts := make([]model.MenuItemConflict, 0)
-		orderID := uuid.New()
-		orderItems := make([]model.OrderItem, 0, len(menuItems))
-		var total int64
-
-		for _, item := range menuItems {
-			requested := requestedByID[item.ID]
-			if !item.IsActive || !item.IsAvailable || item.Version != requested.ObservedVersion {
-				conflicts = append(conflicts, model.MenuItemConflict{
-					MenuItemID:        item.ID,
-					RequestedVersion:  requested.ObservedVersion,
-					CurrentVersion:    item.Version,
-					IsAvailable:       item.IsActive && item.IsAvailable,
-					CurrentPriceMinor: item.PriceMinor,
-				})
-				continue
-			}
-			if item.Currency != restaurant.Currency {
-				return errs.Internal("validate menu currency", nil)
-			}
-			if item.PriceMinor > math.MaxInt64/int64(requested.Quantity) {
-				return errs.InvalidArgument("order total is too large")
-			}
-
-			lineTotal := item.PriceMinor * int64(requested.Quantity)
-			if total > math.MaxInt64-lineTotal {
-				return errs.InvalidArgument("order total is too large")
-			}
-			total += lineTotal
-
-			orderItems = append(orderItems, model.OrderItem{
-				ID:             uuid.New(),
-				OrderID:        orderID,
-				MenuItemID:     item.ID,
-				ExternalItemID: item.ExternalID,
-				Name:           item.Name,
-				UnitPriceMinor: item.PriceMinor,
-				Quantity:       requested.Quantity,
-				LineTotalMinor: lineTotal,
-			})
-		}
-
-		if len(conflicts) > 0 {
-			return errs.FailedPrecondition(
-				errs.CodeMenuChanged,
-				"one or more menu items have changed",
-				conflicts,
-			)
-		}
-
-		order := model.Order{
-			ID:              orderID,
-			RestaurantID:    restaurant.ID,
-			Status:          model.OrderStatusPendingConfirmation,
-			CustomerName:    input.CustomerName,
-			CustomerPhone:   input.CustomerPhone,
-			DeliveryAddress: input.DeliveryAddress,
-			Items:           orderItems,
-			TotalMinor:      total,
-			Currency:        restaurant.Currency,
-		}
-
-		if err := s.orders.CreateOrder(txCtx, order); err != nil {
-			return err
-		}
-		if err := s.orders.CreateOrderItems(txCtx, orderItems); err != nil {
+		if err := s.orders.CreateOrderItems(txCtx, accepted.Items); err != nil {
 			return err
 		}
 		if err := s.orders.CreateOrderStatusHistory(txCtx, model.OrderStatusHistory{
-			OrderID:  order.ID,
-			ToStatus: model.OrderStatusPendingConfirmation,
+			OrderID: accepted.ID,
+			Status:  model.OrderStatusAccepted,
 		}); err != nil {
 			return err
 		}
 
-		created, err = s.orders.GetOrder(txCtx, order.ID)
+		var err error
+		created, err = s.orders.GetOrder(txCtx, accepted.ID)
 		return err
 	})
 	if err != nil {
 		return model.Order{}, err
 	}
-
 	return created, nil
 }
 
@@ -158,6 +91,5 @@ func validateCreateOrder(input model.CreateOrder) error {
 		}
 		seen[item.MenuItemID] = struct{}{}
 	}
-
 	return nil
 }

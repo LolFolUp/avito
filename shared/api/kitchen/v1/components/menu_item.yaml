@@ -10,6 +10,7 @@ properties:
   id:
     type: string
     format: uuid
+    description: UUID позиции в базе restaurant-demo
   name:
     type: string
     minLength: 1
@@ -32,3 +33,4 @@ properties:
     type: integer
     format: int64
     minimum: 1
+    description: Версия позиции для проверки конфликта при создании заказа

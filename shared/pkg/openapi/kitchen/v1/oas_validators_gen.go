@@ -212,6 +212,14 @@ func (s *CreateOrderRequest) Validate() error {
 	return nil
 }
 
+func (s *CreateOrderServiceUnavailable) Validate() error {
+	alias := (*Error)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *Error) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
@@ -351,6 +359,14 @@ func (s *GetRestaurantMenuInternalServerError) Validate() error {
 }
 
 func (s *GetRestaurantMenuNotFound) Validate() error {
+	alias := (*Error)(s)
+	if err := alias.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *GetRestaurantMenuServiceUnavailable) Validate() error {
 	alias := (*Error)(s)
 	if err := alias.Validate(); err != nil {
 		return err

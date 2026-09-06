@@ -7,6 +7,7 @@ const (
 	KindNotFound           Kind = "not_found"
 	KindFailedPrecondition Kind = "failed_precondition"
 	KindAlreadyExists      Kind = "already_exists"
+	KindUnavailable        Kind = "unavailable"
 	KindInternal           Kind = "internal"
 )
 
@@ -18,5 +19,6 @@ const (
 	CodeRestaurantNotAccepting  = "RESTAURANT_NOT_ACCEPTING_ORDERS"
 	CodeInvalidStatusTransition = "INVALID_STATUS_TRANSITION"
 	CodeStatusConflict          = "STATUS_CONFLICT"
+	CodeUnavailable             = "UNAVAILABLE"
 	CodeInternal                = "INTERNAL"
 )

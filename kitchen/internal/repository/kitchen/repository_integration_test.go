@@ -52,30 +52,23 @@ func TestRepositoryUsesTransactionFromContext(t *testing.T) {
 		_, _ = pool.Exec(context.Background(), `DELETE FROM restaurants WHERE id = $1`, restaurantID)
 	})
 
-	if err := repository.UpsertMenuItem(ctx, model.MenuItem{
-		ID: menuItemID, RestaurantID: restaurantID, ExternalID: "item-1", Name: "Item",
-		PriceMinor: 100, Currency: "RUB", IsActive: true, IsAvailable: true, Version: 1,
-	}); err != nil {
-		t.Fatalf("insert menu item: %v", err)
-	}
-
 	rollback := errors.New("force rollback")
 	err = txManager.Do(ctx, func(txCtx context.Context) error {
 		if err := repository.CreateOrder(txCtx, model.Order{
-			ID: orderID, RestaurantID: restaurantID, Status: model.OrderStatusPendingConfirmation,
+			ID: orderID, RestaurantID: restaurantID, Status: model.OrderStatusAccepted,
 			CustomerName: "Alice", CustomerPhone: "+79990000000", DeliveryAddress: "Moscow",
 			TotalMinor: 100, Currency: "RUB",
 		}); err != nil {
 			return err
 		}
 		if err := repository.CreateOrderItems(txCtx, []model.OrderItem{{
-			ID: uuid.New(), OrderID: orderID, MenuItemID: menuItemID, ExternalItemID: "item-1",
+			OrderID: orderID, MenuItemID: menuItemID,
 			Name: "Item", UnitPriceMinor: 100, Quantity: 1,
 		}}); err != nil {
 			return err
 		}
 		if err := repository.CreateOrderStatusHistory(txCtx, model.OrderStatusHistory{
-			OrderID: orderID, ToStatus: model.OrderStatusPendingConfirmation,
+			OrderID: orderID, Status: model.OrderStatusAccepted,
 		}); err != nil {
 			return err
 		}

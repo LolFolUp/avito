@@ -42,58 +42,58 @@ func (m *MockRestaurantRepository) EXPECT() *MockRestaurantRepositoryMockRecorde
 	return m.recorder
 }
 
-// GetRestaurantForUpdate mocks base method.
-func (m *MockRestaurantRepository) GetRestaurantForUpdate(ctx context.Context, id uuid.UUID) (model.Restaurant, error) {
+// GetRestaurant mocks base method.
+func (m *MockRestaurantRepository) GetRestaurant(ctx context.Context, id uuid.UUID) (model.Restaurant, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRestaurantForUpdate", ctx, id)
+	ret := m.ctrl.Call(m, "GetRestaurant", ctx, id)
 	ret0, _ := ret[0].(model.Restaurant)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetRestaurantForUpdate indicates an expected call of GetRestaurantForUpdate.
-func (mr *MockRestaurantRepositoryMockRecorder) GetRestaurantForUpdate(ctx, id any) *gomock.Call {
+// GetRestaurant indicates an expected call of GetRestaurant.
+func (mr *MockRestaurantRepositoryMockRecorder) GetRestaurant(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRestaurantForUpdate", reflect.TypeOf((*MockRestaurantRepository)(nil).GetRestaurantForUpdate), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRestaurant", reflect.TypeOf((*MockRestaurantRepository)(nil).GetRestaurant), ctx, id)
 }
 
-// MockMenuRepository is a mock of MenuRepository interface.
-type MockMenuRepository struct {
+// MockRestaurantClient is a mock of RestaurantClient interface.
+type MockRestaurantClient struct {
 	ctrl     *gomock.Controller
-	recorder *MockMenuRepositoryMockRecorder
+	recorder *MockRestaurantClientMockRecorder
 	isgomock struct{}
 }
 
-// MockMenuRepositoryMockRecorder is the mock recorder for MockMenuRepository.
-type MockMenuRepositoryMockRecorder struct {
-	mock *MockMenuRepository
+// MockRestaurantClientMockRecorder is the mock recorder for MockRestaurantClient.
+type MockRestaurantClientMockRecorder struct {
+	mock *MockRestaurantClient
 }
 
-// NewMockMenuRepository creates a new mock instance.
-func NewMockMenuRepository(ctrl *gomock.Controller) *MockMenuRepository {
-	mock := &MockMenuRepository{ctrl: ctrl}
-	mock.recorder = &MockMenuRepositoryMockRecorder{mock}
+// NewMockRestaurantClient creates a new mock instance.
+func NewMockRestaurantClient(ctrl *gomock.Controller) *MockRestaurantClient {
+	mock := &MockRestaurantClient{ctrl: ctrl}
+	mock.recorder = &MockRestaurantClientMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockMenuRepository) EXPECT() *MockMenuRepositoryMockRecorder {
+func (m *MockRestaurantClient) EXPECT() *MockRestaurantClientMockRecorder {
 	return m.recorder
 }
 
-// GetMenuItemsForUpdate mocks base method.
-func (m *MockMenuRepository) GetMenuItemsForUpdate(ctx context.Context, restaurantID uuid.UUID, itemIDs []uuid.UUID) ([]model.MenuItem, error) {
+// CreateOrder mocks base method.
+func (m *MockRestaurantClient) CreateOrder(ctx context.Context, orderID uuid.UUID, input model.CreateOrder) (model.Order, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMenuItemsForUpdate", ctx, restaurantID, itemIDs)
-	ret0, _ := ret[0].([]model.MenuItem)
+	ret := m.ctrl.Call(m, "CreateOrder", ctx, orderID, input)
+	ret0, _ := ret[0].(model.Order)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetMenuItemsForUpdate indicates an expected call of GetMenuItemsForUpdate.
-func (mr *MockMenuRepositoryMockRecorder) GetMenuItemsForUpdate(ctx, restaurantID, itemIDs any) *gomock.Call {
+// CreateOrder indicates an expected call of CreateOrder.
+func (mr *MockRestaurantClientMockRecorder) CreateOrder(ctx, orderID, input any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMenuItemsForUpdate", reflect.TypeOf((*MockMenuRepository)(nil).GetMenuItemsForUpdate), ctx, restaurantID, itemIDs)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrder", reflect.TypeOf((*MockRestaurantClient)(nil).CreateOrder), ctx, orderID, input)
 }
 
 // MockOrderRepository is a mock of OrderRepository interface.

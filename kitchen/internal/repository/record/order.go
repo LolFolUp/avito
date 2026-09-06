@@ -22,10 +22,8 @@ type Order struct {
 }
 
 type OrderItem struct {
-	ID             uuid.UUID
 	OrderID        uuid.UUID
 	MenuItemID     uuid.UUID
-	ExternalItemID string
 	NameSnapshot   string
 	UnitPriceMinor int64
 	Quantity       int
@@ -33,10 +31,9 @@ type OrderItem struct {
 }
 
 type OrderStatusHistory struct {
-	ID         int64
-	OrderID    uuid.UUID
-	FromStatus pgtype.Text
-	ToStatus   string
-	Reason     pgtype.Text
-	CreatedAt  time.Time
+	ID        int64
+	OrderID   uuid.UUID
+	Status    string
+	Reason    pgtype.Text
+	CreatedAt time.Time
 }

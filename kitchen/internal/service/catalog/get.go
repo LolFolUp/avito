@@ -26,7 +26,7 @@ func (s *Service) GetMenu(ctx context.Context, restaurantID uuid.UUID) (model.Re
 		return model.RestaurantMenu{}, errs.NotFound("restaurant")
 	}
 
-	items, err := s.menu.GetMenu(ctx, restaurantID)
+	items, err := s.partner.GetMenu(ctx, restaurantID)
 	if err != nil {
 		return model.RestaurantMenu{}, err
 	}

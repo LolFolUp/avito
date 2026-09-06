@@ -25,10 +25,8 @@ const orderColumns = `
 	updated_at`
 
 const orderItemColumns = `
-	id,
 	order_id,
 	menu_item_id,
-	external_item_id,
 	name_snapshot,
 	unit_price_minor,
 	quantity,
@@ -68,24 +66,20 @@ func (r *Repository) CreateOrder(ctx context.Context, order model.Order) error {
 
 func (r *Repository) CreateOrderItems(ctx context.Context, items []model.OrderItem) error {
 	query := `INSERT INTO order_items (
-			id,
 			order_id,
 			menu_item_id,
-			external_item_id,
 			name_snapshot,
 			unit_price_minor,
 			quantity
-		) VALUES ($1, $2, $3, $4, $5, $6, $7)`
+		) VALUES ($1, $2, $3, $4, $5)`
 
 	executor := r.getter.DefaultTrOrDB(ctx, r.pool)
 	for _, item := range items {
 		_, err := executor.Exec(
 			ctx,
 			query,
-			item.ID,
 			item.OrderID,
 			item.MenuItemID,
-			item.ExternalItemID,
 			item.Name,
 			item.UnitPriceMinor,
 			item.Quantity,
@@ -101,15 +95,9 @@ func (r *Repository) CreateOrderItems(ctx context.Context, items []model.OrderIt
 func (r *Repository) CreateOrderStatusHistory(ctx context.Context, history model.OrderStatusHistory) error {
 	query := `INSERT INTO order_status_history (
 			order_id,
-			from_status,
-			to_status,
+			status,
 			reason
-		) VALUES ($1, $2, $3, $4)`
-
-	var fromStatus any
-	if history.FromStatus != nil {
-		fromStatus = *history.FromStatus
-	}
+		) VALUES ($1, $2, $3)`
 
 	var reason any
 	if history.Reason != "" {
@@ -120,8 +108,7 @@ func (r *Repository) CreateOrderStatusHistory(ctx context.Context, history model
 		ctx,
 		query,
 		history.OrderID,
-		fromStatus,
-		history.ToStatus,
+		history.Status,
 		reason,
 	)
 	if err != nil {
@@ -254,7 +241,7 @@ func (r *Repository) getOrderItemRecords(ctx context.Context, orderID uuid.UUID)
 	query := `SELECT ` + orderItemColumns + `
 		FROM order_items
 		WHERE order_id = $1
-		ORDER BY id`
+		ORDER BY menu_item_id`
 
 	rows, err := r.getter.DefaultTrOrDB(ctx, r.pool).Query(ctx, query, orderID)
 	if err != nil {
@@ -266,10 +253,8 @@ func (r *Repository) getOrderItemRecords(ctx context.Context, orderID uuid.UUID)
 	for rows.Next() {
 		var item record.OrderItem
 		if err := rows.Scan(
-			&item.ID,
 			&item.OrderID,
 			&item.MenuItemID,
-			&item.ExternalItemID,
 			&item.NameSnapshot,
 			&item.UnitPriceMinor,
 			&item.Quantity,

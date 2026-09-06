@@ -1,66 +1,53 @@
-// Версия
 syntax = "proto3";
-
 
 package partner.v1;
 
-// Timestamp используется для передачи моментов создания и изменения заказа.
 import "google/protobuf/timestamp.proto";
 
-// Путь импорта сгенерированного Go-пакета и его локальное имя partnerv1.
 option go_package = "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/shared/pkg/proto/partner/v1;partnerv1";
 
-// PartnerService предоставляет ресторану приватный API интеграции с Kitchen.
-service PartnerService {
-  // SyncMenu передаёт Kitchen полный актуальный снимок меню ресторана.
-  // Позиции, отсутствующие в новом снимке, деактивируются в Kitchen.
-  rpc SyncMenu(SyncMenuRequest) returns (SyncMenuResponse);
+// RestaurantService — приватный API restaurant-demo для Kitchen.
+// Restaurant-demo владеет меню и принимает окончательное решение о возможности заказа.
+service RestaurantService {
+  // GetMenu возвращает актуальное меню непосредственно из хранилища ресторана.
+  // Метод не резервирует позиции и не гарантирует, что они останутся доступны позже.
+  rpc GetMenu(GetMenuRequest) returns (GetMenuResponse);
 
-  // ListOrders возвращает страницу заказов ресторана с указанным статусом.
-  // restaurant-demo использует этот RPC для polling заказов PENDING_CONFIRMATION.
-  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
-
-  // UpdateOrderStatus меняет статус заказа и возвращает его обновлённое состояние.
-  rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (UpdateOrderStatusResponse);
+  // CreateRestaurantOrder атомарно проверяет позиции и создаёт заказ в ресторане.
+  // При успехе все позиции считаются принятыми рестораном, при ошибке заказ не создаётся.
+  rpc CreateRestaurantOrder(CreateRestaurantOrderRequest) returns (CreateRestaurantOrderResponse);
 }
 
-// OrderStatus описывает этап жизненного цикла заказа.
-enum OrderStatus {
-  // ORDER_STATUS_UNSPECIFIED означает, что статус не был задан.
-  // В бизнес-запросах такое значение считается некорректным.
-  ORDER_STATUS_UNSPECIFIED = 0;
+// RestaurantOrderStatus описывает состояние заказа внутри restaurant-demo.
+enum RestaurantOrderStatus {
+  // RESTAURANT_ORDER_STATUS_UNSPECIFIED означает, что статус не задан.
+  RESTAURANT_ORDER_STATUS_UNSPECIFIED = 0;
 
-  // ORDER_STATUS_PENDING_CONFIRMATION — заказ создан и ожидает решения ресторана.
-  ORDER_STATUS_PENDING_CONFIRMATION = 1;
+  // RESTAURANT_ORDER_STATUS_ACCEPTED — ресторан проверил позиции и принял заказ.
+  RESTAURANT_ORDER_STATUS_ACCEPTED = 1;
 
-  // ORDER_STATUS_ACCEPTED — ресторан принял заказ.
-  ORDER_STATUS_ACCEPTED = 2;
+  // RESTAURANT_ORDER_STATUS_PREPARING — ресторан готовит заказ.
+  RESTAURANT_ORDER_STATUS_PREPARING = 2;
 
-  // ORDER_STATUS_PREPARING — ресторан готовит заказ.
-  ORDER_STATUS_PREPARING = 3;
+  // RESTAURANT_ORDER_STATUS_READY — заказ готов.
+  RESTAURANT_ORDER_STATUS_READY = 3;
 
-  // ORDER_STATUS_READY — заказ приготовлен и готов к передаче в доставку.
-  ORDER_STATUS_READY = 4;
+  // RESTAURANT_ORDER_STATUS_DELIVERING — заказ передан в доставку.
+  RESTAURANT_ORDER_STATUS_DELIVERING = 4;
 
-  // ORDER_STATUS_DELIVERING — заказ находится в доставке.
-  ORDER_STATUS_DELIVERING = 5;
-
-  // ORDER_STATUS_DELIVERED — заказ доставлен; это терминальный статус.
-  ORDER_STATUS_DELIVERED = 6;
-
-  // ORDER_STATUS_REJECTED — ресторан отклонил заказ; это терминальный статус.
-  ORDER_STATUS_REJECTED = 7;
+  // RESTAURANT_ORDER_STATUS_DELIVERED — заказ доставлен; это терминальный статус.
+  RESTAURANT_ORDER_STATUS_DELIVERED = 5;
 }
 
-// MenuItem описывает одну позицию в полном снимке меню ресторана.
+// MenuItem описывает позицию, которой владеет restaurant-demo.
 message MenuItem {
-  // Стабильный идентификатор позиции во внутренней системе ресторана.
-  string external_id = 1;
+  // UUID позиции в базе restaurant-demo. Kitchen использует его без дополнительного external_id.
+  string id = 1;
 
-  // Название блюда, которое показывается клиенту и попадает в snapshot заказа.
+  // Название блюда.
   string name = 2;
 
-  // Описание блюда для каталога.
+  // Описание блюда.
   string description = 3;
 
   // Цена в минимальных единицах валюты: 590 рублей передаются как 59000 копеек.
@@ -69,142 +56,121 @@ message MenuItem {
   // Трёхбуквенный код валюты, например RUB.
   string currency = 5;
 
-  // Признак существования позиции в актуальном меню.
-  // Неактивные позиции не показываются клиенту.
-  bool is_active = 6;
+  // Можно ли заказать позицию прямо сейчас.
+  bool is_available = 6;
 
-  // Признак временной доступности блюда для нового заказа.
-  // Активная, но недоступная позиция остаётся видна клиенту.
-  bool is_available = 7;
+  // Версия позиции. Клиент возвращает увиденную версию при создании заказа.
+  int64 version = 7;
 }
 
-// SyncMenuRequest содержит полный снимок меню одного ресторана.
-message SyncMenuRequest {
-  // UUID ресторана в Kitchen в строковом представлении.
+// GetMenuRequest задаёт ресторан, меню которого запрашивает Kitchen.
+message GetMenuRequest {
+  // UUID ресторана.
+  string restaurant_id = 1;
+}
+
+// GetMenuResponse содержит актуальное меню ресторана.
+message GetMenuResponse {
+  // UUID ресторана.
   string restaurant_id = 1;
 
-  // Все актуальные позиции меню. repeated означает список из нуля или более элементов.
-  repeated MenuItem items = 2;
+  // Валюта меню ресторана.
+  string currency = 2;
+
+  // Активные позиции меню. Временно недоступные позиции тоже возвращаются.
+  repeated MenuItem items = 3;
 }
 
-// SyncMenuResponse содержит результат применения снимка меню.
-message SyncMenuResponse {
-  // Количество новых позиций, созданных в Kitchen.
-  int32 created_count = 1;
+// CreateRestaurantOrderItem описывает выбранную клиентом позицию.
+message CreateRestaurantOrderItem {
+  // UUID позиции в базе restaurant-demo.
+  string menu_item_id = 1;
 
-  // Количество существующих позиций, содержимое которых изменилось.
-  int32 updated_count = 2;
+  // Количество единиц блюда.
+  int32 quantity = 2;
 
-  // Количество позиций, деактивированных из-за отсутствия в новом снимке.
-  int32 deactivated_count = 3;
+  // Версия, которую клиент увидел в GetMenu.
+  // Несовпадение версии означает изменение меню и приводит к конфликту.
+  int64 observed_version = 3;
 }
 
-// ListOrdersRequest задаёт ресторан, статус и параметры страницы заказов.
-message ListOrdersRequest {
-  // UUID ресторана, которому принадлежат запрашиваемые заказы.
-  string restaurant_id = 1;
+// CreateRestaurantOrderRequest передаёт данные для проверки и создания заказа.
+message CreateRestaurantOrderRequest {
+  // UUID, заранее созданный Kitchen и общий для записей в обеих базах.
+  string order_id = 1;
 
-  // Статус, по которому Kitchen фильтрует заказы.
-  OrderStatus status = 2;
+  // UUID ресторана.
+  string restaurant_id = 2;
 
-  // Максимальное количество заказов в одной странице.
-  int32 page_size = 3;
+  // Имя клиента.
+  string customer_name = 3;
 
-  // Непрозрачный токен следующей страницы; пустая строка означает первую страницу.
-  string page_token = 4;
+  // Телефон клиента.
+  string customer_phone = 4;
+
+  // Адрес доставки.
+  string delivery_address = 5;
+
+  // Непустой список позиций заказа.
+  repeated CreateRestaurantOrderItem items = 6;
 }
 
-// ListOrdersResponse содержит найденные заказы и данные для продолжения пагинации.
-message ListOrdersResponse {
-  // Страница заказов, соответствующих фильтру.
-  repeated Order orders = 1;
-
-  // Токен следующей страницы; пустая строка означает, что следующей страницы нет.
-  string next_page_token = 2;
+// CreateRestaurantOrderResponse возвращает заказ, принятый рестораном.
+message CreateRestaurantOrderResponse {
+  // Созданный заказ с авторитетными snapshots названий и цен.
+  RestaurantOrder order = 1;
 }
 
-// UpdateOrderStatusRequest описывает атомарное изменение статуса заказа.
-message UpdateOrderStatusRequest {
-  // UUID ресторана, выполняющего операцию.
-  string restaurant_id = 1;
-
-  // UUID изменяемого заказа.
-  string order_id = 2;
-
-  // Статус, в котором ресторан ожидает увидеть заказ.
-  // Защищает от конкурентного или устаревшего обновления.
-  OrderStatus expected_status = 3;
-
-  // Новый статус заказа. Переход должен соответствовать разрешённому графу статусов.
-  OrderStatus new_status = 4;
-
-  // Причина отклонения. Обязательна для REJECTED и недопустима для других статусов.
-  string reason = 5;
-}
-
-// UpdateOrderStatusResponse возвращает заказ после успешного изменения статуса.
-message UpdateOrderStatusResponse {
-  // Полное актуальное состояние заказа.
-  Order order = 1;
-}
-
-// Order содержит состояние заказа, данные клиента и неизменяемые snapshots позиций.
-message Order {
-  // UUID заказа в Kitchen.
+// RestaurantOrder описывает заказ в restaurant-demo.
+message RestaurantOrder {
+  // UUID заказа, полученный от Kitchen.
   string id = 1;
 
-  // UUID ресторана, которому назначен заказ.
+  // UUID ресторана.
   string restaurant_id = 2;
 
   // Текущий статус заказа.
-  OrderStatus status = 3;
+  RestaurantOrderStatus status = 3;
 
-  // Имя клиента, указанное при оформлении заказа.
+  // Имя клиента.
   string customer_name = 4;
 
-  // Телефон клиента, указанный при оформлении заказа.
+  // Телефон клиента.
   string customer_phone = 5;
 
-  // Адрес доставки заказа.
+  // Адрес доставки.
   string delivery_address = 6;
 
-  // Позиции заказа со снимками названий и цен на момент создания.
-  repeated OrderItem items = 7;
+  // Позиции со snapshots на момент атомарной проверки.
+  repeated RestaurantOrderItem items = 7;
 
   // Полная стоимость заказа в минимальных единицах валюты.
   int64 total_minor = 8;
 
-  // Трёхбуквенный код валюты заказа, например RUB.
+  // Трёхбуквенный код валюты, например RUB.
   string currency = 9;
 
-  // Причина отказа ресторана; заполнена только для статуса REJECTED.
-  string rejection_reason = 10;
-
-  // Момент создания заказа.
-  google.protobuf.Timestamp created_at = 11;
+  // Момент создания заказа рестораном.
+  google.protobuf.Timestamp created_at = 10;
 
   // Момент последнего изменения заказа.
-  google.protobuf.Timestamp updated_at = 12;
+  google.protobuf.Timestamp updated_at = 11;
 }
 
-// OrderItem содержит одну позицию заказа и её snapshot на момент оформления.
-message OrderItem {
-  // UUID позиции меню в Kitchen.
+// RestaurantOrderItem содержит одну позицию и её неизменяемый snapshot.
+message RestaurantOrderItem {
+  // UUID позиции меню в restaurant-demo.
   string menu_item_id = 1;
 
-  // Идентификатор позиции во внутренней системе ресторана.
-  // restaurant-demo использует его для повторной проверки доступности.
-  string external_item_id = 2;
+  // Snapshot названия блюда.
+  string name = 2;
 
-  // Snapshot названия: последующие изменения меню не изменяют заказ.
-  string name = 3;
+  // Snapshot цены одной единицы.
+  int64 unit_price_minor = 3;
 
-  // Snapshot цены одной единицы в минимальных единицах валюты.
-  int64 unit_price_minor = 4;
+  // Количество единиц блюда.
+  int32 quantity = 4;
 
-  // Заказанное количество позиции.
-  int32 quantity = 5;
-
-  // Стоимость строки: unit_price_minor, умноженная на quantity.
-  int64 line_total_minor = 6;
+  // Стоимость строки: unit_price_minor * quantity.
+  int64 line_total_minor = 5;
 }
