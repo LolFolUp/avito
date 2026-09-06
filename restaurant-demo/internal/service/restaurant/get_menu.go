@@ -9,18 +9,17 @@ import (
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/model"
 )
 
-func (s *Service) GetMenu(ctx context.Context, restaurantID uuid.UUID) (model.Restaurant, []model.MenuItem, error) {
+func (s *Service) GetMenu(ctx context.Context, restaurantID uuid.UUID) ([]model.MenuItem, string, error) {
 	if restaurantID == uuid.Nil {
-		return model.Restaurant{}, nil, errs.InvalidArgument("restaurant id is required")
+		return nil, "", errs.InvalidArgument("restaurant id is required")
+	}
+	if restaurantID != s.restaurantID {
+		return nil, "", errs.NotFound("restaurant not found")
 	}
 
-	restaurant, err := s.repository.GetRestaurant(ctx, restaurantID)
+	items, err := s.repository.ListMenu(ctx)
 	if err != nil {
-		return model.Restaurant{}, nil, err
+		return nil, "", err
 	}
-	items, err := s.repository.ListMenu(ctx, restaurantID)
-	if err != nil {
-		return model.Restaurant{}, nil, err
-	}
-	return restaurant, items, nil
+	return items, s.currency, nil
 }

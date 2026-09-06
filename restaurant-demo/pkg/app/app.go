@@ -7,11 +7,13 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
@@ -26,6 +28,8 @@ import (
 const (
 	defaultDatabaseURL     = "postgres://restaurant:restaurant@localhost:15433/restaurant?sslmode=disable"
 	defaultGRPCAddress     = ":9090"
+	defaultRestaurantID    = "00000000-0000-0000-0000-000000000001"
+	defaultCurrency        = "RUB"
 	defaultPingTimeout     = 5 * time.Second
 	defaultShutdownTimeout = 10 * time.Second
 )
@@ -33,6 +37,8 @@ const (
 type Config struct {
 	DatabaseURL     string
 	GRPCAddress     string
+	RestaurantID    uuid.UUID
+	Currency        string
 	PingTimeout     time.Duration
 	ShutdownTimeout time.Duration
 }
@@ -46,13 +52,24 @@ type App struct {
 	logger          *slog.Logger
 }
 
-func ConfigFromEnv() Config {
+func ConfigFromEnv() (Config, error) {
+	restaurantID, err := uuid.Parse(envOrDefault("RESTAURANT_ID", defaultRestaurantID))
+	if err != nil {
+		return Config{}, fmt.Errorf("parse restaurant id: %w", err)
+	}
+	currency := strings.ToUpper(strings.TrimSpace(envOrDefault("RESTAURANT_CURRENCY", defaultCurrency)))
+	if len(currency) != 3 {
+		return Config{}, fmt.Errorf("restaurant currency must contain three letters")
+	}
+
 	return Config{
 		DatabaseURL:     envOrDefault("DATABASE_URL", defaultDatabaseURL),
 		GRPCAddress:     envOrDefault("RESTAURANT_GRPC_ADDR", defaultGRPCAddress),
+		RestaurantID:    restaurantID,
+		Currency:        currency,
 		PingTimeout:     defaultPingTimeout,
 		ShutdownTimeout: defaultShutdownTimeout,
-	}
+	}, nil
 }
 
 func New(ctx context.Context, cfg Config) (*App, error) {
@@ -85,7 +102,7 @@ func New(ctx context.Context, cfg Config) (*App, error) {
 	}
 
 	repository := restaurantrepo.New(pool, trmpgx.DefaultCtxGetter)
-	service := restaurant.New(repository, txManager, logger)
+	service := restaurant.New(cfg.RestaurantID, cfg.Currency, repository, txManager, logger)
 	grpcServer := grpc.NewServer()
 	partnerpb.RegisterRestaurantServiceServer(grpcServer, partnerapi.New(service, logger))
 

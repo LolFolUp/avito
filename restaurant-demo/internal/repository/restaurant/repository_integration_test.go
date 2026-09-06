@@ -37,26 +37,17 @@ func TestCreateOrderAtomicallyReservesItem(t *testing.T) {
 		t.Fatalf("create transaction manager: %v", err)
 	}
 	repository := restaurantrepo.New(pool, trmpgx.DefaultCtxGetter)
-	service := restaurant.New(repository, txManager, nil)
 
 	restaurantID := uuid.New()
+	service := restaurant.New(restaurantID, "RUB", repository, txManager, nil)
 	itemID := uuid.New()
 	orderID := uuid.New()
 	_, err = pool.Exec(ctx, `
-		INSERT INTO restaurants (id, name, currency)
-		VALUES ($1, 'Integration', 'RUB')`,
-		restaurantID,
-	)
-	if err != nil {
-		t.Fatalf("prepare restaurant: %v", err)
-	}
-	_, err = pool.Exec(ctx, `
 		INSERT INTO menu_items (
-			id, restaurant_id, name, description, price_minor, currency,
+			id, name, description, price_minor, currency,
 			is_active, is_available, available_quantity, version
-		) VALUES ($1, $2, 'Item', '', 100, 'RUB', TRUE, TRUE, 1, 1)`,
+		) VALUES ($1, 'Item', '', 100, 'RUB', TRUE, TRUE, 1, 1)`,
 		itemID,
-		restaurantID,
 	)
 	if err != nil {
 		t.Fatalf("prepare menu item: %v", err)
@@ -64,7 +55,6 @@ func TestCreateOrderAtomicallyReservesItem(t *testing.T) {
 	t.Cleanup(func() {
 		_, _ = pool.Exec(context.Background(), `DELETE FROM orders WHERE id = $1`, orderID)
 		_, _ = pool.Exec(context.Background(), `DELETE FROM menu_items WHERE id = $1`, itemID)
-		_, _ = pool.Exec(context.Background(), `DELETE FROM restaurants WHERE id = $1`, restaurantID)
 	})
 
 	created, err := service.CreateOrder(ctx, model.CreateOrder{

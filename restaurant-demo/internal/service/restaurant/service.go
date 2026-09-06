@@ -2,21 +2,33 @@ package restaurant
 
 import (
 	"log/slog"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
-	repository RestaurantRepository
-	txManager  TxManager
-	logger     *slog.Logger
+	restaurantID uuid.UUID
+	currency     string
+	repository   RestaurantRepository
+	txManager    TxManager
+	logger       *slog.Logger
 }
 
-func New(repository RestaurantRepository, txManager TxManager, logger *slog.Logger) *Service {
+func New(
+	restaurantID uuid.UUID,
+	currency string,
+	repository RestaurantRepository,
+	txManager TxManager,
+	logger *slog.Logger,
+) *Service {
 	if logger == nil {
 		logger = slog.Default()
 	}
 	return &Service{
-		repository: repository,
-		txManager:  txManager,
-		logger:     logger,
+		restaurantID: restaurantID,
+		currency:     currency,
+		repository:   repository,
+		txManager:    txManager,
+		logger:       logger,
 	}
 }

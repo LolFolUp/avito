@@ -114,7 +114,6 @@ Kitchen PostgreSQL:
 
 Restaurant PostgreSQL:
 
-- `restaurants` — ресторан-владелец данных;
 - `menu_items` — меню, доступность, версия и `available_quantity`;
 - `orders` — заказ, принятый рестораном;
 - `order_items` — ресторанные snapshots;
@@ -128,14 +127,16 @@ erDiagram
     KITCHEN_ORDERS ||--|{ KITCHEN_ORDER_ITEMS : contains
     KITCHEN_ORDERS ||--|{ KITCHEN_STATUS_HISTORY : records
 
-    RESTAURANT_RESTAURANTS ||--o{ RESTAURANT_MENU_ITEMS : owns
-    RESTAURANT_RESTAURANTS ||--o{ RESTAURANT_ORDERS : receives
     RESTAURANT_ORDERS ||--|{ RESTAURANT_ORDER_ITEMS : contains
     RESTAURANT_MENU_ITEMS ||--o{ RESTAURANT_ORDER_ITEMS : snapshots
     RESTAURANT_ORDERS ||--|{ RESTAURANT_STATUS_HISTORY : records
 
     RESTAURANT_MENU_ITEMS }o..o{ KITCHEN_ORDER_ITEMS : "logical menu_item_id"
 ```
+
+Один экземпляр `restaurant-demo` представляет один ресторан. Его UUID и валюта
+задаются через `RESTAURANT_ID` и `RESTAURANT_CURRENCY`, поэтому локальная таблица
+`restaurants` и повторяющиеся `restaurant_id` в таблицах ресторана не нужны.
 
 ## Транзакции и согласованность
 

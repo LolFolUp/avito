@@ -17,10 +17,10 @@ func TestCreateOrderDoesNotReserveWhenObservedVersionIsStale(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	repository := mocks.NewMockRestaurantRepository(ctrl)
 	txManager := mocks.NewMockTxManager(ctrl)
-	service := restaurant.New(repository, txManager, nil)
 
 	ctx := context.Background()
 	restaurantID := uuid.New()
+	service := restaurant.New(restaurantID, "RUB", repository, txManager, nil)
 	itemID := uuid.New()
 	input := model.CreateOrder{
 		ID:              uuid.New(),
@@ -40,13 +40,9 @@ func TestCreateOrderDoesNotReserveWhenObservedVersionIsStale(t *testing.T) {
 			return fn(txCtx)
 		},
 	)
-	repository.EXPECT().GetRestaurant(ctx, restaurantID).Return(model.Restaurant{
-		ID: restaurantID, Currency: "RUB",
-	}, nil)
-	repository.EXPECT().GetMenuItemsForUpdate(ctx, restaurantID, []uuid.UUID{itemID}).Return(
+	repository.EXPECT().GetMenuItemsForUpdate(ctx, []uuid.UUID{itemID}).Return(
 		[]model.MenuItem{{
 			ID:                itemID,
-			RestaurantID:      restaurantID,
 			Name:              "Margherita",
 			PriceMinor:        59000,
 			Currency:          "RUB",

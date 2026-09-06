@@ -19,12 +19,18 @@ type Order struct {
 	UpdatedAt       time.Time
 }
 
+// OrderItem описывает одну позицию заказа.
+// Название и цены являются snapshots на момент оформления заказа.
 type OrderItem struct {
-	ID             uuid.UUID
-	OrderID        uuid.UUID
 	MenuItemID     uuid.UUID
 	Name           string
 	UnitPriceMinor int64
 	Quantity       int
 	LineTotalMinor int64
+}
+
+type CreateOrderItem struct {
+	MenuItemID      uuid.UUID
+	Quantity        int
+	ObservedVersion int64
 }

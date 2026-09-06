@@ -5,7 +5,6 @@ import "github.com/google/uuid"
 // MenuItem описывает позицию меню во внутренней модели restaurant-demo.
 type MenuItem struct {
 	ID                uuid.UUID
-	RestaurantID      uuid.UUID
 	Name              string
 	Description       string
 	PriceMinor        int64
@@ -14,12 +13,6 @@ type MenuItem struct {
 	IsAvailable       bool
 	AvailableQuantity int
 	Version           int64
-}
-
-type Restaurant struct {
-	ID       uuid.UUID
-	Name     string
-	Currency string
 }
 
 type MenuItemConflict struct {

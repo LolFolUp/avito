@@ -8,7 +8,10 @@ import (
 )
 
 func main() {
-	config := app.ConfigFromEnv()
+	config, err := app.ConfigFromEnv()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	application, err := app.New(context.Background(), config)
 	if err != nil {

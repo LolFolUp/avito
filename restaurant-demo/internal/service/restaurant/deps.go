@@ -13,12 +13,10 @@ type TxManager interface {
 }
 
 type RestaurantRepository interface {
-	GetRestaurant(ctx context.Context, id uuid.UUID) (model.Restaurant, error)
-	ListMenu(ctx context.Context, restaurantID uuid.UUID) ([]model.MenuItem, error)
-	GetMenuItemsForUpdate(ctx context.Context, restaurantID uuid.UUID, itemIDs []uuid.UUID) ([]model.MenuItem, error)
-	ReserveMenuItem(ctx context.Context, restaurantID uuid.UUID, itemID uuid.UUID, quantity int) error
+	ListMenu(ctx context.Context) ([]model.MenuItem, error)
+	GetMenuItemsForUpdate(ctx context.Context, itemIDs []uuid.UUID) ([]model.MenuItem, error)
+	ReserveMenuItem(ctx context.Context, itemID uuid.UUID, quantity int) error
 	CreateOrder(ctx context.Context, order model.Order) (model.Order, error)
 	CreateOrderItems(ctx context.Context, orderID uuid.UUID, items []model.OrderItem) error
 	CreateOrderStatusHistory(ctx context.Context, history model.OrderStatusHistory) error
-	GetOrder(ctx context.Context, id uuid.UUID) (model.Order, error)
 }

@@ -17,14 +17,14 @@ func (a *API) GetMenu(ctx context.Context, request *partnerpb.GetMenuRequest) (*
 		return nil, status.Error(codes.InvalidArgument, "restaurant id must be a UUID")
 	}
 
-	restaurant, items, err := a.service.GetMenu(ctx, restaurantID)
+	items, currency, err := a.service.GetMenu(ctx, restaurantID)
 	if err != nil {
 		a.logError("get restaurant menu", err)
 		return nil, grpcError(err)
 	}
 	return &partnerpb.GetMenuResponse{
-		RestaurantId: restaurant.ID.String(),
-		Currency:     restaurant.Currency,
+		RestaurantId: restaurantID.String(),
+		Currency:     currency,
 		Items:        converter.MenuItemsToProto(items),
 	}, nil
 }

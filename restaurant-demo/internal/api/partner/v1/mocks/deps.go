@@ -58,11 +58,11 @@ func (mr *MockRestaurantServiceMockRecorder) CreateOrder(ctx, input any) *gomock
 }
 
 // GetMenu mocks base method.
-func (m *MockRestaurantService) GetMenu(ctx context.Context, restaurantID uuid.UUID) (model.Restaurant, []model.MenuItem, error) {
+func (m *MockRestaurantService) GetMenu(ctx context.Context, restaurantID uuid.UUID) ([]model.MenuItem, string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMenu", ctx, restaurantID)
-	ret0, _ := ret[0].(model.Restaurant)
-	ret1, _ := ret[1].([]model.MenuItem)
+	ret0, _ := ret[0].([]model.MenuItem)
+	ret1, _ := ret[1].(string)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }

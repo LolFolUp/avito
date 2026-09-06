@@ -92,6 +92,8 @@ services:
     environment:
       DATABASE_URL: postgres://${RESTAURANT_POSTGRES_USER:-restaurant}:${RESTAURANT_POSTGRES_PASSWORD:-restaurant}@restaurant-postgres:5432/${RESTAURANT_POSTGRES_DB:-restaurant}?sslmode=disable
       RESTAURANT_GRPC_ADDR: :9090
+      RESTAURANT_ID: ${RESTAURANT_ID:-00000000-0000-0000-0000-000000000001}
+      RESTAURANT_CURRENCY: ${RESTAURANT_CURRENCY:-RUB}
     ports:
       - "127.0.0.1:${RESTAURANT_GRPC_PORT:-9090}:9090"
     healthcheck:

@@ -8,7 +8,6 @@ import (
 func convertMenuItemToModel(record record.MenuItem) model.MenuItem {
 	return model.MenuItem{
 		ID:                record.ID,
-		RestaurantID:      record.RestaurantID,
 		Name:              record.Name,
 		Description:       record.Description,
 		PriceMinor:        record.PriceMinor,
@@ -22,12 +21,8 @@ func convertMenuItemToModel(record record.MenuItem) model.MenuItem {
 
 func MenuItemsToModel(records []record.MenuItem) []model.MenuItem {
 	items := make([]model.MenuItem, len(records))
-	for i, record := range records {
-		items[i] = convertMenuItemToModel(record)
+	for i, recordItem := range records {
+		items[i] = convertMenuItemToModel(recordItem)
 	}
 	return items
-}
-
-func RestaurantToModel(source record.Restaurant) model.Restaurant {
-	return model.Restaurant{ID: source.ID, Name: source.Name, Currency: source.Currency}
 }

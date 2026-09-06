@@ -18,14 +18,12 @@ func (s *Service) CreateOrder(ctx context.Context, input model.CreateOrder) (mod
 	if err := validateCreateOrder(input); err != nil {
 		return model.Order{}, err
 	}
+	if input.RestaurantID != s.restaurantID {
+		return model.Order{}, errs.NotFound("restaurant not found")
+	}
 
 	var created model.Order
 	err := s.txManager.Do(ctx, func(txCtx context.Context) error {
-		restaurant, err := s.repository.GetRestaurant(txCtx, input.RestaurantID)
-		if err != nil {
-			return err
-		}
-
 		itemIDs := make([]uuid.UUID, 0, len(input.Items))
 		requestedByID := make(map[uuid.UUID]model.CreateOrderItem, len(input.Items))
 		for _, requested := range input.Items {
@@ -33,7 +31,7 @@ func (s *Service) CreateOrder(ctx context.Context, input model.CreateOrder) (mod
 			requestedByID[requested.MenuItemID] = requested
 		}
 
-		menuItems, err := s.repository.GetMenuItemsForUpdate(txCtx, input.RestaurantID, itemIDs)
+		menuItems, err := s.repository.GetMenuItemsForUpdate(txCtx, itemIDs)
 		if err != nil {
 			return err
 		}
@@ -51,7 +49,7 @@ func (s *Service) CreateOrder(ctx context.Context, input model.CreateOrder) (mod
 				item.Version != requested.ObservedVersion {
 				return errs.FailedPrecondition("one or more menu items have changed or are unavailable")
 			}
-			if item.Currency != restaurant.Currency {
+			if item.Currency != s.currency {
 				return errs.Internal("menu currency differs from restaurant currency", nil)
 			}
 			if item.PriceMinor > math.MaxInt64/int64(requested.Quantity) {
@@ -75,7 +73,6 @@ func (s *Service) CreateOrder(ctx context.Context, input model.CreateOrder) (mod
 		for _, requested := range input.Items {
 			if err := s.repository.ReserveMenuItem(
 				txCtx,
-				input.RestaurantID,
 				requested.MenuItemID,
 				requested.Quantity,
 			); err != nil {
@@ -92,7 +89,7 @@ func (s *Service) CreateOrder(ctx context.Context, input model.CreateOrder) (mod
 			DeliveryAddress: input.DeliveryAddress,
 			Items:           orderItems,
 			TotalMinor:      total,
-			Currency:        restaurant.Currency,
+			Currency:        s.currency,
 		})
 		if err != nil {
 			return err

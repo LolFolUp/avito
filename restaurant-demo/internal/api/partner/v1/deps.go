@@ -9,6 +9,6 @@ import (
 )
 
 type RestaurantService interface {
-	GetMenu(ctx context.Context, restaurantID uuid.UUID) (model.Restaurant, []model.MenuItem, error)
+	GetMenu(ctx context.Context, restaurantID uuid.UUID) ([]model.MenuItem, string, error)
 	CreateOrder(ctx context.Context, input model.CreateOrder) (model.Order, error)
 }
