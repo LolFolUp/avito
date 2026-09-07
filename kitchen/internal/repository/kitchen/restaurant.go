@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/model"
-	convertrepo "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/repository/convert"
+	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/repository/convert"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/repository/record"
 )
 
@@ -51,7 +51,7 @@ func (r *Repository) ListRestaurants(ctx context.Context) ([]model.Restaurant, e
 		return nil, repositoryError("iterate restaurants", "restaurants", err)
 	}
 
-	return convertrepo.RestaurantsToModel(restaurants), nil
+	return convert.RestaurantsToModel(restaurants), nil
 }
 
 func (r *Repository) GetRestaurant(ctx context.Context, id uuid.UUID) (model.Restaurant, error) {
@@ -71,5 +71,5 @@ func (r *Repository) GetRestaurant(ctx context.Context, id uuid.UUID) (model.Res
 		return model.Restaurant{}, repositoryError("get restaurant", "restaurant", err)
 	}
 
-	return convertrepo.RestaurantToModel(restaurant), nil
+	return convert.RestaurantToModel(restaurant), nil
 }

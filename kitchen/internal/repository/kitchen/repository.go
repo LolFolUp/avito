@@ -11,6 +11,9 @@ type Repository struct {
 }
 
 func New(pool *pgxpool.Pool, getter *trmpgx.CtxGetter) *Repository {
+	if getter == nil {
+		getter = trmpgx.DefaultCtxGetter
+	}
 	return &Repository{
 		pool:   pool,
 		getter: getter,

@@ -82,11 +82,11 @@ func TestOrderIsAcceptedByRestaurantDemo(t *testing.T) {
 	if err := json.NewDecoder(response.Body).Decode(&order); err != nil {
 		t.Fatalf("decode order: %v", err)
 	}
-	if order.Status != "accepted" || order.TotalMinor <= 0 {
+	if order.Status != "ACCEPTED" || order.TotalMinor <= 0 {
 		t.Fatalf("unexpected created order: %#v", order)
 	}
 	getJSON(t, client, fmt.Sprintf("%s/api/v1/orders/%s", baseURL, order.ID), &order)
-	if order.Status != "accepted" {
+	if order.Status != "ACCEPTED" {
 		t.Fatalf("stored order has status %q", order.Status)
 	}
 

@@ -7,7 +7,7 @@ import (
 
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/errs"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/model"
-	convert "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/repository/convert"
+	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/repository/convert"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/repository/record"
 )
 
@@ -43,9 +43,10 @@ func (r *Repository) CreateOrder(ctx context.Context, order model.Order) error {
 			total_minor,
 			currency,
 			rejection_reason
-		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NULL)`
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 
 	rec := convert.OrderToRecord(order)
+	recItems := convert.OrderItemsToRecords(order.Items)
 	_, err := r.getter.DefaultTrOrDB(ctx, r.pool).Exec(
 		ctx,
 		query,
@@ -57,15 +58,16 @@ func (r *Repository) CreateOrder(ctx context.Context, order model.Order) error {
 		rec.DeliveryAddress,
 		rec.TotalPrice,
 		rec.Currency,
+		rec.RejectionReason,
 	)
 	if err != nil {
 		return repositoryError("create order", "order", err)
 	}
 
-	return r.createOrderItems(ctx, order.Items)
+	return r.createOrderItems(ctx, recItems)
 }
 
-func (r *Repository) createOrderItems(ctx context.Context, items []model.OrderItem) error {
+func (r *Repository) createOrderItems(ctx context.Context, items []record.OrderItem) error {
 	query := `INSERT INTO order_items (
 			order_id,
 			menu_item_id,
@@ -75,8 +77,7 @@ func (r *Repository) createOrderItems(ctx context.Context, items []model.OrderIt
 		) VALUES ($1, $2, $3, $4, $5)`
 
 	executor := r.getter.DefaultTrOrDB(ctx, r.pool)
-	records := convert.OrderItemToRecord(items)
-	for _, item := range records {
+	for _, item := range items {
 		_, err := executor.Exec(
 			ctx,
 			query,
@@ -100,17 +101,12 @@ func (r *Repository) CreateOrderStatusHistory(ctx context.Context, history model
 			reason
 		) VALUES ($1, $2, $3)`
 
-	var reason any
-	if history.Reason != "" {
-		reason = history.Reason
-	}
-
 	_, err := r.getter.DefaultTrOrDB(ctx, r.pool).Exec(
 		ctx,
 		query,
 		history.OrderID,
-		history.Status,
-		reason,
+		convert.OrderStatusToRecord(history.Status),
+		convert.RejectionReasonToRecord(history.Reason),
 	)
 	if err != nil {
 		return repositoryError("create order status history", "order status history", err)
@@ -154,7 +150,14 @@ func (r *Repository) UpdateOrderStatus(
 			updated_at = NOW()
 		WHERE id = $1`
 
-	result, err := r.getter.DefaultTrOrDB(ctx, r.pool).Exec(ctx, query, id, status, reason)
+	recordStatus := convert.OrderStatusToRecord(status)
+	result, err := r.getter.DefaultTrOrDB(ctx, r.pool).Exec(
+		ctx,
+		query,
+		id,
+		recordStatus,
+		convert.RejectionReasonToRecord(reason),
+	)
 	if err != nil {
 		return repositoryError("update order status", "order", err)
 	}

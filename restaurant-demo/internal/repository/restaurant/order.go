@@ -22,15 +22,15 @@ func (r *Repository) CreateOrder(ctx context.Context, order model.Order) error {
 	_, err := r.getter.DefaultTrOrDB(ctx, r.pool).Exec(
 		ctx,
 		query,
-		&rec.ID,
-		&rec.Status,
-		&rec.CustomerName,
-		&rec.CustomerPhone,
-		&rec.DeliveryAddress,
-		&rec.TotalPrice,
-		&rec.Currency,
-		&rec.CreatedAt,
-		&rec.UpdatedAt,
+		rec.ID,
+		rec.Status,
+		rec.CustomerName,
+		rec.CustomerPhone,
+		rec.DeliveryAddress,
+		rec.TotalPrice,
+		rec.Currency,
+		rec.CreatedAt,
+		rec.UpdatedAt,
 	)
 	if err != nil {
 		return repositoryError("create order", "order", err)

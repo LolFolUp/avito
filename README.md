@@ -58,7 +58,7 @@ task down
 - `CreateRestaurantOrder` в одной транзакции блокирует блюда через `FOR UPDATE`, проверяет существование, версию, доступность, валюту и остаток, уменьшает остаток и записывает ресторанный заказ.
 - Если хотя бы одна проверка не прошла, вся транзакция откатывается, а Kitchen возвращает `409 MENU_CHANGED`.
 - При успехе restaurant-demo возвращает авторитетные snapshots названий и цен. Kitchen сохраняет их в своих `orders/order_items`; дальнейшее изменение меню не изменяет заказ.
-- Успешно созданный заказ сразу имеет статус `accepted`: отдельного polling-подтверждения больше нет.
+- Успешно созданный заказ сразу имеет статус `ACCEPTED`: отдельного polling-подтверждения больше нет.
 - Денежные суммы хранятся целыми числами в минимальных единицах валюты.
 
 Внутри каждого сервиса соблюдается направление `api/client -> service -> repository`. Transport DTO, domain model и PostgreSQL record разделены converter-пакетами. Транзакции открывает только service через Avito Transaction Manager; repository выбирает транзакцию из context посредством `trmpgx.DefaultCtxGetter`.
@@ -149,7 +149,7 @@ SELECT menu_items FOR UPDATE
 -> decrement available_quantity
 -> INSERT orders
 -> INSERT order_items
--> INSERT order_status_history(accepted)
+-> INSERT order_status_history(ACCEPTED)
 ```
 
 Kitchen после успешного gRPC-ответа отдельной локальной транзакцией записывает свой `order + items + history`. Общей ACID-транзакции между двумя PostgreSQL нет. Если restaurant-demo успел принять заказ, а Kitchen не сохранил snapshot, возможен orphan в базе ресторана. Для MVP это известный trade-off; production-улучшения — idempotency key/order ID, retry, recovery job и transactional outbox.
@@ -173,7 +173,7 @@ Kitchen после успешного gRPC-ответа отдельной ло�
 4b. Успех
     Restaurant записывает orders/order_items/history и уменьшает остаток
     -> Kitchen записывает свой snapshot orders/order_items/history
-    -> REST 201 accepted
+    -> REST 201 ACCEPTED
 
 5. Клиент читает заказ
    REST Kitchen -> Kitchen.orders + Kitchen.order_items

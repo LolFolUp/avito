@@ -901,44 +901,44 @@ func (s *OrderItem) SetLineTotalMinor(val int64) {
 type OrderStatus string
 
 const (
-	OrderStatusPendingConfirmation OrderStatus = "pending_confirmation"
-	OrderStatusAccepted            OrderStatus = "accepted"
-	OrderStatusPreparing           OrderStatus = "preparing"
-	OrderStatusReady               OrderStatus = "ready"
-	OrderStatusDelivering          OrderStatus = "delivering"
-	OrderStatusDelivered           OrderStatus = "delivered"
-	OrderStatusRejected            OrderStatus = "rejected"
+	OrderStatusPENDINGCONFIRMATION OrderStatus = "PENDING_CONFIRMATION"
+	OrderStatusACCEPTED            OrderStatus = "ACCEPTED"
+	OrderStatusPREPARING           OrderStatus = "PREPARING"
+	OrderStatusREADY               OrderStatus = "READY"
+	OrderStatusDELIVERING          OrderStatus = "DELIVERING"
+	OrderStatusDELIVERED           OrderStatus = "DELIVERED"
+	OrderStatusREJECTED            OrderStatus = "REJECTED"
 )
 
 // AllValues returns all OrderStatus values.
 func (OrderStatus) AllValues() []OrderStatus {
 	return []OrderStatus{
-		OrderStatusPendingConfirmation,
-		OrderStatusAccepted,
-		OrderStatusPreparing,
-		OrderStatusReady,
-		OrderStatusDelivering,
-		OrderStatusDelivered,
-		OrderStatusRejected,
+		OrderStatusPENDINGCONFIRMATION,
+		OrderStatusACCEPTED,
+		OrderStatusPREPARING,
+		OrderStatusREADY,
+		OrderStatusDELIVERING,
+		OrderStatusDELIVERED,
+		OrderStatusREJECTED,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
 func (s OrderStatus) MarshalText() ([]byte, error) {
 	switch s {
-	case OrderStatusPendingConfirmation:
+	case OrderStatusPENDINGCONFIRMATION:
 		return []byte(s), nil
-	case OrderStatusAccepted:
+	case OrderStatusACCEPTED:
 		return []byte(s), nil
-	case OrderStatusPreparing:
+	case OrderStatusPREPARING:
 		return []byte(s), nil
-	case OrderStatusReady:
+	case OrderStatusREADY:
 		return []byte(s), nil
-	case OrderStatusDelivering:
+	case OrderStatusDELIVERING:
 		return []byte(s), nil
-	case OrderStatusDelivered:
+	case OrderStatusDELIVERED:
 		return []byte(s), nil
-	case OrderStatusRejected:
+	case OrderStatusREJECTED:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -948,26 +948,26 @@ func (s OrderStatus) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *OrderStatus) UnmarshalText(data []byte) error {
 	switch OrderStatus(data) {
-	case OrderStatusPendingConfirmation:
-		*s = OrderStatusPendingConfirmation
+	case OrderStatusPENDINGCONFIRMATION:
+		*s = OrderStatusPENDINGCONFIRMATION
 		return nil
-	case OrderStatusAccepted:
-		*s = OrderStatusAccepted
+	case OrderStatusACCEPTED:
+		*s = OrderStatusACCEPTED
 		return nil
-	case OrderStatusPreparing:
-		*s = OrderStatusPreparing
+	case OrderStatusPREPARING:
+		*s = OrderStatusPREPARING
 		return nil
-	case OrderStatusReady:
-		*s = OrderStatusReady
+	case OrderStatusREADY:
+		*s = OrderStatusREADY
 		return nil
-	case OrderStatusDelivering:
-		*s = OrderStatusDelivering
+	case OrderStatusDELIVERING:
+		*s = OrderStatusDELIVERING
 		return nil
-	case OrderStatusDelivered:
-		*s = OrderStatusDelivered
+	case OrderStatusDELIVERED:
+		*s = OrderStatusDELIVERED
 		return nil
-	case OrderStatusRejected:
-		*s = OrderStatusRejected
+	case OrderStatusREJECTED:
+		*s = OrderStatusREJECTED
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)

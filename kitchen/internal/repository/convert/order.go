@@ -10,50 +10,50 @@ func OrderToModel(source record.Order, items []record.OrderItem) model.Order {
 	return model.Order{
 		ID:              source.ID,
 		RestaurantID:    source.RestaurantID,
-		Status:          model.OrderStatus(source.Status),
+		Status:          OrderStatusToModel(source.Status),
 		CustomerName:    source.CustomerName,
 		CustomerPhone:   source.CustomerPhone,
 		DeliveryAddress: source.DeliveryAddress,
 		Items:           OrderItemsToModel(items),
 		TotalPrice:      source.TotalPrice,
 		Currency:        source.Currency,
-		RejectionReason: source.RejectionReason.String,
+		RejectionReason: RejectionReasonToModel(source.RejectionReason),
 		CreatedAt:       source.CreatedAt,
 		UpdatedAt:       source.UpdatedAt,
 	}
 }
-func OrderToRecord(model model.Order) record.Order {
+func OrderToRecord(source model.Order) record.Order {
 	return record.Order{
-		ID:              model.ID,
-		RestaurantID:    model.RestaurantID,
-		Status:          modelStatusToRecord(model.Status),
-		CustomerName:    model.CustomerName,
-		CustomerPhone:   model.CustomerPhone,
-		DeliveryAddress: model.DeliveryAddress,
-		TotalPrice:      model.TotalPrice,
-		Currency:        model.Currency,
-		RejectionReason: RejectionReasonToRecord(model.RejectionReason),
-		CreatedAt:       model.CreatedAt,
-		UpdatedAt:       model.UpdatedAt,
+		ID:              source.ID,
+		RestaurantID:    source.RestaurantID,
+		Status:          OrderStatusToRecord(source.Status),
+		CustomerName:    source.CustomerName,
+		CustomerPhone:   source.CustomerPhone,
+		DeliveryAddress: source.DeliveryAddress,
+		TotalPrice:      source.TotalPrice,
+		Currency:        source.Currency,
+		RejectionReason: RejectionReasonToRecord(source.RejectionReason),
+		CreatedAt:       source.CreatedAt,
+		UpdatedAt:       source.UpdatedAt,
 	}
 }
 
-func OrderItemToRecord(item []model.OrderItem) []record.OrderItem {
-	items := make([]record.OrderItem, 0, len(item))
-	for _, item := range item {
+func OrderItemsToRecords(source []model.OrderItem) []record.OrderItem {
+	items := make([]record.OrderItem, 0, len(source))
+	for _, item := range source {
 		items = append(items, orderItemToRecord(item))
 	}
 	return items
 }
 
-func orderItemToRecord(model model.OrderItem) record.OrderItem {
+func orderItemToRecord(source model.OrderItem) record.OrderItem {
 	return record.OrderItem{
-		OrderID:        model.OrderID,
-		MenuItemID:     model.MenuItemID,
-		Name:           model.Name,
-		UnitPriceMinor: model.UnitPriceMinor,
-		Quantity:       model.Quantity,
-		LineTotalPrice: model.LineTotalPrice,
+		OrderID:        source.OrderID,
+		MenuItemID:     source.MenuItemID,
+		Name:           source.Name,
+		UnitPriceMinor: source.UnitPriceMinor,
+		Quantity:       source.Quantity,
+		LineTotalPrice: source.LineTotalPrice,
 	}
 }
 
@@ -64,24 +64,21 @@ func RejectionReasonToRecord(reason string) pgtype.Text {
 	}
 }
 
-func modelStatusToRecord(status model.OrderStatus) string {
-	switch status {
-	case model.OrderStatusPendingConfirmation:
-		return "PendingConfirmation"
-	case model.OrderStatusAccepted:
-		return "Accepted"
-	case model.OrderStatusPreparing:
-		return "Preparing"
-	case model.OrderStatusDelivering:
-		return "Delivering"
-	case model.OrderStatusRejected:
-		return "Rejected"
-	case model.OrderStatusDelivered:
-		return "Delivered"
-	default:
+func RejectionReasonToModel(reason pgtype.Text) string {
+	if !reason.Valid {
 		return ""
 	}
+	return reason.String
 }
+
+func OrderStatusToRecord(status model.OrderStatus) string {
+	return string(status)
+}
+
+func OrderStatusToModel(status string) model.OrderStatus {
+	return model.OrderStatus(status)
+}
+
 func OrderItemToModel(source record.OrderItem) model.OrderItem {
 	return model.OrderItem{
 		OrderID:        source.OrderID,

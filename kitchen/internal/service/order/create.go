@@ -47,9 +47,6 @@ func (s *Service) Create(ctx context.Context, input model.CreateOrder) (model.Or
 		if err := s.orders.CreateOrder(txCtx, accepted); err != nil {
 			return err
 		}
-		if err := s.orders.CreateOrderItems(txCtx, accepted.Items); err != nil {
-			return err
-		}
 		if err := s.orders.CreateOrderStatusHistory(txCtx, model.OrderStatusHistory{
 			OrderID: accepted.ID,
 			Status:  model.OrderStatusAccepted,

@@ -2278,20 +2278,20 @@ func (s *OrderStatus) Decode(d *jx.Decoder) error {
 	}
 	// Try to use constant string.
 	switch OrderStatus(v) {
-	case OrderStatusPendingConfirmation:
-		*s = OrderStatusPendingConfirmation
-	case OrderStatusAccepted:
-		*s = OrderStatusAccepted
-	case OrderStatusPreparing:
-		*s = OrderStatusPreparing
-	case OrderStatusReady:
-		*s = OrderStatusReady
-	case OrderStatusDelivering:
-		*s = OrderStatusDelivering
-	case OrderStatusDelivered:
-		*s = OrderStatusDelivered
-	case OrderStatusRejected:
-		*s = OrderStatusRejected
+	case OrderStatusPENDINGCONFIRMATION:
+		*s = OrderStatusPENDINGCONFIRMATION
+	case OrderStatusACCEPTED:
+		*s = OrderStatusACCEPTED
+	case OrderStatusPREPARING:
+		*s = OrderStatusPREPARING
+	case OrderStatusREADY:
+		*s = OrderStatusREADY
+	case OrderStatusDELIVERING:
+		*s = OrderStatusDELIVERING
+	case OrderStatusDELIVERED:
+		*s = OrderStatusDELIVERED
+	case OrderStatusREJECTED:
+		*s = OrderStatusREJECTED
 	default:
 		*s = OrderStatus(v)
 	}

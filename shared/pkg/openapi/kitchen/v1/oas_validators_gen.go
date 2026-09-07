@@ -748,19 +748,19 @@ func (s *OrderItem) Validate() error {
 
 func (s OrderStatus) Validate() error {
 	switch s {
-	case "pending_confirmation":
+	case "PENDING_CONFIRMATION":
 		return nil
-	case "accepted":
+	case "ACCEPTED":
 		return nil
-	case "preparing":
+	case "PREPARING":
 		return nil
-	case "ready":
+	case "READY":
 		return nil
-	case "delivering":
+	case "DELIVERING":
 		return nil
-	case "delivered":
+	case "DELIVERED":
 		return nil
-	case "rejected":
+	case "REJECTED":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
