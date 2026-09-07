@@ -18,11 +18,9 @@ type RestaurantClient interface {
 
 type OrderRepository interface {
 	CreateOrder(ctx context.Context, order model.Order) error
-	CreateOrderItems(ctx context.Context, items []model.OrderItem) error
 	CreateOrderStatusHistory(ctx context.Context, history model.OrderStatusHistory) error
 	GetOrder(ctx context.Context, id uuid.UUID) (model.Order, error)
 	GetOrderForUpdate(ctx context.Context, id uuid.UUID) (model.Order, error)
-	ListOrders(ctx context.Context, filter model.OrderFilter) ([]model.Order, error)
 	UpdateOrderStatus(ctx context.Context, id uuid.UUID, status model.OrderStatus, reason string) error
 }
 

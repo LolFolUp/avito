@@ -192,21 +192,6 @@ func (mr *MockOrderRepositoryMockRecorder) GetOrderForUpdate(ctx, id any) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrderForUpdate", reflect.TypeOf((*MockOrderRepository)(nil).GetOrderForUpdate), ctx, id)
 }
 
-// ListOrders mocks base method.
-func (m *MockOrderRepository) ListOrders(ctx context.Context, filter model.OrderFilter) ([]model.Order, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListOrders", ctx, filter)
-	ret0, _ := ret[0].([]model.Order)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListOrders indicates an expected call of ListOrders.
-func (mr *MockOrderRepositoryMockRecorder) ListOrders(ctx, filter any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListOrders", reflect.TypeOf((*MockOrderRepository)(nil).ListOrders), ctx, filter)
-}
-
 // UpdateOrderStatus mocks base method.
 func (m *MockOrderRepository) UpdateOrderStatus(ctx context.Context, id uuid.UUID, status model.OrderStatus, reason string) error {
 	m.ctrl.T.Helper()

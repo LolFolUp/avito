@@ -190,7 +190,7 @@ func (x *MenuItem) GetVersion() int64 {
 // GetMenuRequest задаёт ресторан, меню которого запрашивает Kitchen.
 type GetMenuRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// UUID ресторана.
+	// UUID ресторана из каталога Kitchen.
 	RestaurantId  string `protobuf:"bytes,1,opt,name=restaurant_id,json=restaurantId,proto3" json:"restaurant_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -236,10 +236,6 @@ func (x *GetMenuRequest) GetRestaurantId() string {
 // GetMenuResponse содержит актуальное меню ресторана.
 type GetMenuResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// UUID ресторана.
-	RestaurantId string `protobuf:"bytes,1,opt,name=restaurant_id,json=restaurantId,proto3" json:"restaurant_id,omitempty"`
-	// Валюта меню ресторана.
-	Currency string `protobuf:"bytes,2,opt,name=currency,proto3" json:"currency,omitempty"`
 	// Активные позиции меню. Временно недоступные позиции тоже возвращаются.
 	Items         []*MenuItem `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -274,20 +270,6 @@ func (x *GetMenuResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetMenuResponse.ProtoReflect.Descriptor instead.
 func (*GetMenuResponse) Descriptor() ([]byte, []int) {
 	return file_partner_v1_partner_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *GetMenuResponse) GetRestaurantId() string {
-	if x != nil {
-		return x.RestaurantId
-	}
-	return ""
-}
-
-func (x *GetMenuResponse) GetCurrency() string {
-	if x != nil {
-		return x.Currency
-	}
-	return ""
 }
 
 func (x *GetMenuResponse) GetItems() []*MenuItem {
@@ -367,7 +349,7 @@ type CreateRestaurantOrderRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// UUID, заранее созданный Kitchen и общий для записей в обеих базах.
 	OrderId string `protobuf:"bytes,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
-	// UUID ресторана.
+	// UUID ресторана из каталога Kitchen.
 	RestaurantId string `protobuf:"bytes,2,opt,name=restaurant_id,json=restaurantId,proto3" json:"restaurant_id,omitempty"`
 	// Имя клиента.
 	CustomerName string `protobuf:"bytes,3,opt,name=customer_name,json=customerName,proto3" json:"customer_name,omitempty"`
@@ -504,7 +486,7 @@ type RestaurantOrder struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// UUID заказа, полученный от Kitchen.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// UUID ресторана.
+	// UUID ресторана, который создал заказ.
 	RestaurantId string `protobuf:"bytes,2,opt,name=restaurant_id,json=restaurantId,proto3" json:"restaurant_id,omitempty"`
 	// Текущий статус заказа.
 	Status RestaurantOrderStatus `protobuf:"varint,3,opt,name=status,proto3,enum=partner.v1.RestaurantOrderStatus" json:"status,omitempty"`
@@ -733,10 +715,8 @@ const file_partner_v1_partner_proto_rawDesc = "" +
 	"\fis_available\x18\x06 \x01(\bR\visAvailable\x12\x18\n" +
 	"\aversion\x18\a \x01(\x03R\aversion\"5\n" +
 	"\x0eGetMenuRequest\x12#\n" +
-	"\rrestaurant_id\x18\x01 \x01(\tR\frestaurantId\"~\n" +
-	"\x0fGetMenuResponse\x12#\n" +
-	"\rrestaurant_id\x18\x01 \x01(\tR\frestaurantId\x12\x1a\n" +
-	"\bcurrency\x18\x02 \x01(\tR\bcurrency\x12*\n" +
+	"\rrestaurant_id\x18\x01 \x01(\tR\frestaurantId\"=\n" +
+	"\x0fGetMenuResponse\x12*\n" +
 	"\x05items\x18\x03 \x03(\v2\x14.partner.v1.MenuItemR\x05items\"\x84\x01\n" +
 	"\x19CreateRestaurantOrderItem\x12 \n" +
 	"\fmenu_item_id\x18\x01 \x01(\tR\n" +

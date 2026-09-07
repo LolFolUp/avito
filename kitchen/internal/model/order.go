@@ -26,7 +26,7 @@ type Order struct {
 	CustomerPhone   string
 	DeliveryAddress string
 	Items           []OrderItem
-	TotalMinor      int64
+	TotalPrice      int64
 	Currency        string
 	RejectionReason string
 	CreatedAt       time.Time
@@ -39,7 +39,7 @@ type OrderItem struct {
 	Name           string
 	UnitPriceMinor int64
 	Quantity       int
-	LineTotalMinor int64
+	LineTotalPrice int64
 }
 
 type CreateOrderItem struct {
@@ -54,19 +54,6 @@ type CreateOrder struct {
 	CustomerPhone   string
 	DeliveryAddress string
 	Items           []CreateOrderItem
-}
-
-type OrderFilter struct {
-	RestaurantID   uuid.UUID
-	Status         OrderStatus
-	Limit          int
-	AfterCreatedAt *time.Time
-	AfterID        *uuid.UUID
-}
-
-type OrderPage struct {
-	Orders        []Order
-	NextPageToken string
 }
 
 type OrderStatusHistory struct {

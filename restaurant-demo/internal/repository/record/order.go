@@ -7,13 +7,11 @@ import (
 
 type Order struct {
 	ID              uuid.UUID
-	RestaurantID    uuid.UUID
 	Status          string
 	CustomerName    string
 	CustomerPhone   string
 	DeliveryAddress string
-	Items           []OrderItem
-	TotalMinor      int64
+	TotalPrice      int64
 	Currency        string
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
@@ -22,11 +20,12 @@ type Order struct {
 // OrderItem описывает одну позицию заказа.
 // Название и цены являются snapshots на момент оформления заказа.
 type OrderItem struct {
+	OrderID        uuid.UUID
 	MenuItemID     uuid.UUID
 	Name           string
-	UnitPriceMinor int64
+	Price          int64
 	Quantity       int
-	LineTotalMinor int64
+	LineTotalPrice int64
 }
 
 type CreateOrderItem struct {

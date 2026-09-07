@@ -57,7 +57,7 @@ func TestRepositoryUsesTransactionFromContext(t *testing.T) {
 		if err := repository.CreateOrder(txCtx, model.Order{
 			ID: orderID, RestaurantID: restaurantID, Status: model.OrderStatusAccepted,
 			CustomerName: "Alice", CustomerPhone: "+79990000000", DeliveryAddress: "Moscow",
-			TotalMinor: 100, Currency: "RUB",
+			TotalPrice: 100, Currency: "RUB",
 		}); err != nil {
 			return err
 		}

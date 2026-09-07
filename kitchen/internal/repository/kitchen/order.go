@@ -7,7 +7,7 @@ import (
 
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/errs"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/model"
-	convertrepo "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/repository/convert"
+	convert "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/repository/convert"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/repository/record"
 )
 
@@ -45,26 +45,27 @@ func (r *Repository) CreateOrder(ctx context.Context, order model.Order) error {
 			rejection_reason
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NULL)`
 
+	rec := convert.OrderToRecord(order)
 	_, err := r.getter.DefaultTrOrDB(ctx, r.pool).Exec(
 		ctx,
 		query,
-		order.ID,
-		order.RestaurantID,
-		order.Status,
-		order.CustomerName,
-		order.CustomerPhone,
-		order.DeliveryAddress,
-		order.TotalMinor,
-		order.Currency,
+		rec.ID,
+		rec.RestaurantID,
+		rec.Status,
+		rec.CustomerName,
+		rec.CustomerPhone,
+		rec.DeliveryAddress,
+		rec.TotalPrice,
+		rec.Currency,
 	)
 	if err != nil {
 		return repositoryError("create order", "order", err)
 	}
 
-	return nil
+	return r.createOrderItems(ctx, order.Items)
 }
 
-func (r *Repository) CreateOrderItems(ctx context.Context, items []model.OrderItem) error {
+func (r *Repository) createOrderItems(ctx context.Context, items []model.OrderItem) error {
 	query := `INSERT INTO order_items (
 			order_id,
 			menu_item_id,
@@ -74,7 +75,8 @@ func (r *Repository) CreateOrderItems(ctx context.Context, items []model.OrderIt
 		) VALUES ($1, $2, $3, $4, $5)`
 
 	executor := r.getter.DefaultTrOrDB(ctx, r.pool)
-	for _, item := range items {
+	records := convert.OrderItemToRecord(items)
+	for _, item := range records {
 		_, err := executor.Exec(
 			ctx,
 			query,
@@ -88,7 +90,6 @@ func (r *Repository) CreateOrderItems(ctx context.Context, items []model.OrderIt
 			return repositoryError("create order item", "order item", err)
 		}
 	}
-
 	return nil
 }
 
@@ -129,7 +130,7 @@ func (r *Repository) GetOrder(ctx context.Context, id uuid.UUID) (model.Order, e
 		return model.Order{}, err
 	}
 
-	return convertrepo.OrderToModel(order, items), nil
+	return convert.OrderToModel(order, items), nil
 }
 
 func (r *Repository) GetOrderForUpdate(ctx context.Context, id uuid.UUID) (model.Order, error) {
@@ -138,64 +139,7 @@ func (r *Repository) GetOrderForUpdate(ctx context.Context, id uuid.UUID) (model
 		return model.Order{}, err
 	}
 
-	return convertrepo.OrderToModel(order, nil), nil
-}
-
-func (r *Repository) ListOrders(ctx context.Context, filter model.OrderFilter) ([]model.Order, error) {
-	query := `SELECT ` + orderColumns + `
-		FROM orders
-		WHERE restaurant_id = $1
-			AND status = $2
-			AND (
-				$3::timestamptz IS NULL
-				OR (created_at, id) > ($3::timestamptz, $4::uuid)
-			)
-		ORDER BY created_at, id
-		LIMIT $5`
-
-	var afterCreatedAt any
-	var afterID any
-	if filter.AfterCreatedAt != nil && filter.AfterID != nil {
-		afterCreatedAt = *filter.AfterCreatedAt
-		afterID = *filter.AfterID
-	}
-
-	rows, err := r.getter.DefaultTrOrDB(ctx, r.pool).Query(
-		ctx,
-		query,
-		filter.RestaurantID,
-		filter.Status,
-		afterCreatedAt,
-		afterID,
-		filter.Limit,
-	)
-	if err != nil {
-		return nil, repositoryError("list orders", "orders", err)
-	}
-	defer rows.Close()
-
-	orderRecords := make([]record.Order, 0)
-	for rows.Next() {
-		order, err := scanOrder(rows.Scan)
-		if err != nil {
-			return nil, repositoryError("scan order", "order", err)
-		}
-		orderRecords = append(orderRecords, order)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, repositoryError("iterate orders", "orders", err)
-	}
-
-	orders := make([]model.Order, 0, len(orderRecords))
-	for _, orderRecord := range orderRecords {
-		items, err := r.getOrderItemRecords(ctx, orderRecord.ID)
-		if err != nil {
-			return nil, err
-		}
-		orders = append(orders, convertrepo.OrderToModel(orderRecord, items))
-	}
-
-	return orders, nil
+	return convert.OrderToModel(order, nil), nil
 }
 
 func (r *Repository) UpdateOrderStatus(
@@ -255,10 +199,10 @@ func (r *Repository) getOrderItemRecords(ctx context.Context, orderID uuid.UUID)
 		if err := rows.Scan(
 			&item.OrderID,
 			&item.MenuItemID,
-			&item.NameSnapshot,
+			&item.Name,
 			&item.UnitPriceMinor,
 			&item.Quantity,
-			&item.LineTotalMinor,
+			&item.LineTotalPrice,
 		); err != nil {
 			return nil, repositoryError("scan order item", "order item", err)
 		}
@@ -280,7 +224,7 @@ func scanOrder(scan func(dest ...any) error) (record.Order, error) {
 		&order.CustomerName,
 		&order.CustomerPhone,
 		&order.DeliveryAddress,
-		&order.TotalMinor,
+		&order.TotalPrice,
 		&order.Currency,
 		&order.RejectionReason,
 		&order.CreatedAt,

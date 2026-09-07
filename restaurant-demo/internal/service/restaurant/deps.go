@@ -16,7 +16,6 @@ type RestaurantRepository interface {
 	ListMenu(ctx context.Context) ([]model.MenuItem, error)
 	GetMenuItemsForUpdate(ctx context.Context, itemIDs []uuid.UUID) ([]model.MenuItem, error)
 	ReserveMenuItem(ctx context.Context, itemID uuid.UUID, quantity int) error
-	CreateOrder(ctx context.Context, order model.Order) (model.Order, error)
-	CreateOrderItems(ctx context.Context, orderID uuid.UUID, items []model.OrderItem) error
+	CreateOrder(ctx context.Context, order model.Order) error
 	CreateOrderStatusHistory(ctx context.Context, history model.OrderStatusHistory) error
 }

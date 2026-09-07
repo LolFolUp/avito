@@ -13,7 +13,6 @@ import (
 	context "context"
 	reflect "reflect"
 
-	uuid "github.com/google/uuid"
 	model "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/model"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -58,17 +57,16 @@ func (mr *MockRestaurantServiceMockRecorder) CreateOrder(ctx, input any) *gomock
 }
 
 // GetMenu mocks base method.
-func (m *MockRestaurantService) GetMenu(ctx context.Context, restaurantID uuid.UUID) ([]model.MenuItem, string, error) {
+func (m *MockRestaurantService) GetMenu(ctx context.Context) ([]model.MenuItem, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMenu", ctx, restaurantID)
+	ret := m.ctrl.Call(m, "GetMenu", ctx)
 	ret0, _ := ret[0].([]model.MenuItem)
-	ret1, _ := ret[1].(string)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // GetMenu indicates an expected call of GetMenu.
-func (mr *MockRestaurantServiceMockRecorder) GetMenu(ctx, restaurantID any) *gomock.Call {
+func (mr *MockRestaurantServiceMockRecorder) GetMenu(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMenu", reflect.TypeOf((*MockRestaurantService)(nil).GetMenu), ctx, restaurantID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMenu", reflect.TypeOf((*MockRestaurantService)(nil).GetMenu), ctx)
 }

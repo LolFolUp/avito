@@ -14,9 +14,9 @@ type Order struct {
 	CustomerName    string
 	CustomerPhone   string
 	DeliveryAddress string
-	TotalMinor      int64
+	TotalPrice      int64
 	Currency        string
-	RejectionReason pgtype.Text
+	RejectionReason pgtype.Text // Тут есть еще варианты *string(как я обычно делал) и sql.NullString
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 }
@@ -24,10 +24,10 @@ type Order struct {
 type OrderItem struct {
 	OrderID        uuid.UUID
 	MenuItemID     uuid.UUID
-	NameSnapshot   string
+	Name           string
 	UnitPriceMinor int64
 	Quantity       int
-	LineTotalMinor int64
+	LineTotalPrice int64
 }
 
 type OrderStatusHistory struct {

@@ -14,10 +14,3 @@ type MenuItem struct {
 	AvailableQuantity int
 	Version           int64
 }
-
-type MenuItemConflict struct {
-	MenuItemID       uuid.UUID
-	RequestedVersion int64
-	CurrentVersion   int64
-	IsAvailable      bool
-}

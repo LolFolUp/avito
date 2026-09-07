@@ -134,9 +134,10 @@ erDiagram
     RESTAURANT_MENU_ITEMS }o..o{ KITCHEN_ORDER_ITEMS : "logical menu_item_id"
 ```
 
-Один экземпляр `restaurant-demo` представляет один ресторан. Его UUID и валюта
-задаются через `RESTAURANT_ID` и `RESTAURANT_CURRENCY`, поэтому локальная таблица
-`restaurants` и повторяющиеся `restaurant_id` в таблицах ресторана не нужны.
+Один экземпляр `restaurant-demo` представляет один ресторан, поэтому локальная
+таблица `restaurants` и повторяющиеся `restaurant_id` в таблицах ресторана не
+нужны. Валюта хранится вместе с ценами позиций меню и snapshot заказа, а не в
+конфигурации сервиса.
 
 ## Транзакции и согласованность
 

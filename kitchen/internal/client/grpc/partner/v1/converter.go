@@ -74,7 +74,7 @@ func orderFromProto(source *partnerpb.RestaurantOrder) (model.Order, error) {
 			Name:           sourceItem.GetName(),
 			UnitPriceMinor: sourceItem.GetUnitPriceMinor(),
 			Quantity:       int(sourceItem.GetQuantity()),
-			LineTotalMinor: sourceItem.GetLineTotalMinor(),
+			LineTotalPrice: sourceItem.GetLineTotalMinor(),
 		})
 	}
 
@@ -86,7 +86,7 @@ func orderFromProto(source *partnerpb.RestaurantOrder) (model.Order, error) {
 		CustomerPhone:   source.GetCustomerPhone(),
 		DeliveryAddress: source.GetDeliveryAddress(),
 		Items:           items,
-		TotalMinor:      source.GetTotalMinor(),
+		TotalPrice:      source.GetTotalMinor(),
 		Currency:        source.GetCurrency(),
 		CreatedAt:       source.GetCreatedAt().AsTime(),
 		UpdatedAt:       source.GetUpdatedAt().AsTime(),

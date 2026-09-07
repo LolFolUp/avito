@@ -29,18 +29,14 @@ func MenuItemsToProto(items []model.MenuItem) []*partnerpb.MenuItem {
 func CreateOrderFromProto(request *partnerpb.CreateRestaurantOrderRequest) (model.CreateOrder, error) {
 	orderID, err := uuid.Parse(request.GetOrderId())
 	if err != nil {
-		return model.CreateOrder{}, fmt.Errorf("invalid order id: %w", err)
-	}
-	restaurantID, err := uuid.Parse(request.GetRestaurantId())
-	if err != nil {
-		return model.CreateOrder{}, fmt.Errorf("invalid restaurant id: %w", err)
+		return model.CreateOrder{}, fmt.Errorf("Невалидный ID заказа: %w", err)
 	}
 
 	items := make([]model.CreateOrderItem, 0, len(request.GetItems()))
 	for _, source := range request.GetItems() {
 		itemID, err := uuid.Parse(source.GetMenuItemId())
 		if err != nil {
-			return model.CreateOrder{}, fmt.Errorf("invalid menu item id: %w", err)
+			return model.CreateOrder{}, fmt.Errorf("Невалидный ID позиции меню: %w", err)
 		}
 		items = append(items, model.CreateOrderItem{
 			MenuItemID:      itemID,
@@ -51,7 +47,6 @@ func CreateOrderFromProto(request *partnerpb.CreateRestaurantOrderRequest) (mode
 
 	return model.CreateOrder{
 		ID:              orderID,
-		RestaurantID:    restaurantID,
 		CustomerName:    request.GetCustomerName(),
 		CustomerPhone:   request.GetCustomerPhone(),
 		DeliveryAddress: request.GetDeliveryAddress(),
@@ -59,27 +54,27 @@ func CreateOrderFromProto(request *partnerpb.CreateRestaurantOrderRequest) (mode
 	}, nil
 }
 
-func OrderToProto(order model.Order) *partnerpb.RestaurantOrder {
+func OrderToProto(restaurantID uuid.UUID, order model.Order) *partnerpb.RestaurantOrder {
 	items := make([]*partnerpb.RestaurantOrderItem, 0, len(order.Items))
 	for _, item := range order.Items {
 		items = append(items, &partnerpb.RestaurantOrderItem{
 			MenuItemId:     item.MenuItemID.String(),
 			Name:           item.Name,
-			UnitPriceMinor: item.UnitPriceMinor,
+			UnitPriceMinor: item.Price,
 			Quantity:       int32(item.Quantity),
-			LineTotalMinor: item.LineTotalMinor,
+			LineTotalMinor: item.LineTotalPrice,
 		})
 	}
 
 	return &partnerpb.RestaurantOrder{
 		Id:              order.ID.String(),
-		RestaurantId:    order.RestaurantID.String(),
+		RestaurantId:    restaurantID.String(),
 		Status:          orderStatusToProto(order.Status),
 		CustomerName:    order.CustomerName,
 		CustomerPhone:   order.CustomerPhone,
 		DeliveryAddress: order.DeliveryAddress,
 		Items:           items,
-		TotalMinor:      order.TotalMinor,
+		TotalMinor:      order.TotalPrice,
 		Currency:        order.Currency,
 		CreatedAt:       timestamppb.New(order.CreatedAt),
 		UpdatedAt:       timestamppb.New(order.UpdatedAt),

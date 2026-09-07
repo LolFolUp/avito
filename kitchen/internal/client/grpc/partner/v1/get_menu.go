@@ -11,7 +11,9 @@ import (
 )
 
 func (c *Client) GetMenu(ctx context.Context, restaurantID uuid.UUID) ([]model.MenuItem, error) {
-	response, err := c.client.GetMenu(ctx, &partnerpb.GetMenuRequest{RestaurantId: restaurantID.String()})
+	response, err := c.client.GetMenu(ctx, &partnerpb.GetMenuRequest{
+		RestaurantId: restaurantID.String(),
+	})
 	if err != nil {
 		return nil, clientError("get restaurant menu", err)
 	}

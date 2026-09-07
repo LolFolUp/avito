@@ -65,17 +65,12 @@ message MenuItem {
 
 // GetMenuRequest задаёт ресторан, меню которого запрашивает Kitchen.
 message GetMenuRequest {
-  // UUID ресторана.
+  // UUID ресторана из каталога Kitchen.
   string restaurant_id = 1;
 }
 
 // GetMenuResponse содержит актуальное меню ресторана.
 message GetMenuResponse {
-  // UUID ресторана.
-  string restaurant_id = 1;
-
-  // Валюта меню ресторана.
-  string currency = 2;
 
   // Активные позиции меню. Временно недоступные позиции тоже возвращаются.
   repeated MenuItem items = 3;
@@ -99,7 +94,7 @@ message CreateRestaurantOrderRequest {
   // UUID, заранее созданный Kitchen и общий для записей в обеих базах.
   string order_id = 1;
 
-  // UUID ресторана.
+  // UUID ресторана из каталога Kitchen.
   string restaurant_id = 2;
 
   // Имя клиента.
@@ -126,7 +121,7 @@ message RestaurantOrder {
   // UUID заказа, полученный от Kitchen.
   string id = 1;
 
-  // UUID ресторана.
+  // UUID ресторана, который создал заказ.
   string restaurant_id = 2;
 
   // Текущий статус заказа.

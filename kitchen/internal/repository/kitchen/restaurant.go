@@ -55,18 +55,7 @@ func (r *Repository) ListRestaurants(ctx context.Context) ([]model.Restaurant, e
 }
 
 func (r *Repository) GetRestaurant(ctx context.Context, id uuid.UUID) (model.Restaurant, error) {
-	return r.getRestaurant(ctx, id, false)
-}
-
-func (r *Repository) GetRestaurantForUpdate(ctx context.Context, id uuid.UUID) (model.Restaurant, error) {
-	return r.getRestaurant(ctx, id, true)
-}
-
-func (r *Repository) getRestaurant(ctx context.Context, id uuid.UUID, forUpdate bool) (model.Restaurant, error) {
 	query := `SELECT ` + restaurantColumns + ` FROM restaurants WHERE id = $1`
-	if forUpdate {
-		query += ` FOR UPDATE`
-	}
 
 	var restaurant record.Restaurant
 	err := r.getter.DefaultTrOrDB(ctx, r.pool).QueryRow(ctx, query, id).Scan(

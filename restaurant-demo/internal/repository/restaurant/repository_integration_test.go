@@ -38,8 +38,7 @@ func TestCreateOrderAtomicallyReservesItem(t *testing.T) {
 	}
 	repository := restaurantrepo.New(pool, trmpgx.DefaultCtxGetter)
 
-	restaurantID := uuid.New()
-	service := restaurant.New(restaurantID, "RUB", repository, txManager, nil)
+	service := restaurant.New(repository, txManager, nil)
 	itemID := uuid.New()
 	orderID := uuid.New()
 	_, err = pool.Exec(ctx, `
@@ -59,7 +58,6 @@ func TestCreateOrderAtomicallyReservesItem(t *testing.T) {
 
 	created, err := service.CreateOrder(ctx, model.CreateOrder{
 		ID:              orderID,
-		RestaurantID:    restaurantID,
 		CustomerName:    "Alice",
 		CustomerPhone:   "+79990000000",
 		DeliveryAddress: "Moscow",
@@ -72,7 +70,7 @@ func TestCreateOrderAtomicallyReservesItem(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create order: %v", err)
 	}
-	if created.Status != model.OrderStatusAccepted || created.TotalMinor != 100 {
+	if created.Status != model.OrderStatusAccepted || created.TotalPrice != 100 {
 		t.Fatalf("unexpected order: %#v", created)
 	}
 

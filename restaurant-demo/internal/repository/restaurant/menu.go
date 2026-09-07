@@ -2,10 +2,10 @@ package restaurant
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 
+	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/errs"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/model"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/repository/convert"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/repository/record"
@@ -114,7 +114,7 @@ func (r *Repository) ReserveMenuItem(
 		return repositoryError("reserve menu item", "menu item", err)
 	}
 	if result.RowsAffected() != 1 {
-		return fmt.Errorf("menu item %s was not reserved", itemID)
+		return errs.FailedPrecondition("menu item is unavailable or has insufficient quantity")
 	}
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"math"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -17,9 +18,6 @@ func (s *Service) CreateOrder(ctx context.Context, input model.CreateOrder) (mod
 	input.DeliveryAddress = strings.TrimSpace(input.DeliveryAddress)
 	if err := validateCreateOrder(input); err != nil {
 		return model.Order{}, err
-	}
-	if input.RestaurantID != s.restaurantID {
-		return model.Order{}, errs.NotFound("restaurant not found")
 	}
 
 	var created model.Order
@@ -40,7 +38,10 @@ func (s *Service) CreateOrder(ctx context.Context, input model.CreateOrder) (mod
 		}
 
 		orderItems := make([]model.OrderItem, 0, len(menuItems))
-		var total int64
+		var (
+			total         int64
+			orderCurrency string
+		)
 		for _, item := range menuItems {
 			requested := requestedByID[item.ID]
 			if !item.IsActive ||
@@ -49,8 +50,11 @@ func (s *Service) CreateOrder(ctx context.Context, input model.CreateOrder) (mod
 				item.Version != requested.ObservedVersion {
 				return errs.FailedPrecondition("one or more menu items have changed or are unavailable")
 			}
-			if item.Currency != s.currency {
-				return errs.Internal("menu currency differs from restaurant currency", nil)
+
+			if orderCurrency == "" {
+				orderCurrency = item.Currency
+			} else if item.Currency != orderCurrency {
+				return errs.FailedPrecondition("order items have different currencies")
 			}
 			if item.PriceMinor > math.MaxInt64/int64(requested.Quantity) {
 				return errs.InvalidArgument("order total is too large")
@@ -64,9 +68,9 @@ func (s *Service) CreateOrder(ctx context.Context, input model.CreateOrder) (mod
 			orderItems = append(orderItems, model.OrderItem{
 				MenuItemID:     item.ID,
 				Name:           item.Name,
-				UnitPriceMinor: item.PriceMinor,
+				Price:          item.PriceMinor,
 				Quantity:       requested.Quantity,
-				LineTotalMinor: lineTotal,
+				LineTotalPrice: lineTotal,
 			})
 		}
 
@@ -80,23 +84,20 @@ func (s *Service) CreateOrder(ctx context.Context, input model.CreateOrder) (mod
 			}
 		}
 
-		created, err = s.repository.CreateOrder(txCtx, model.Order{
+		now := time.Now().UTC()
+		created = model.Order{
 			ID:              input.ID,
-			RestaurantID:    input.RestaurantID,
 			Status:          model.OrderStatusAccepted,
 			CustomerName:    input.CustomerName,
 			CustomerPhone:   input.CustomerPhone,
 			DeliveryAddress: input.DeliveryAddress,
 			Items:           orderItems,
-			TotalMinor:      total,
-			Currency:        s.currency,
-		})
-		if err != nil {
-			return err
+			TotalPrice:      total,
+			Currency:        orderCurrency,
+			CreatedAt:       now,
+			UpdatedAt:       now,
 		}
-		created.Items = orderItems
-
-		if err := s.repository.CreateOrderItems(txCtx, created.ID, orderItems); err != nil {
+		if err := s.repository.CreateOrder(txCtx, created); err != nil {
 			return err
 		}
 		return s.repository.CreateOrderStatusHistory(txCtx, model.OrderStatusHistory{
@@ -113,17 +114,15 @@ func (s *Service) CreateOrder(ctx context.Context, input model.CreateOrder) (mod
 func validateCreateOrder(input model.CreateOrder) error {
 	switch {
 	case input.ID == uuid.Nil:
-		return errs.InvalidArgument("order id is required")
-	case input.RestaurantID == uuid.Nil:
-		return errs.InvalidArgument("restaurant id is required")
+		return errs.InvalidArgument("ID заказа обязателен")
 	case input.CustomerName == "" || len(input.CustomerName) > 200:
-		return errs.InvalidArgument("customer name is invalid")
+		return errs.InvalidArgument("Имя недействительно")
 	case len(input.CustomerPhone) < 5 || len(input.CustomerPhone) > 32:
-		return errs.InvalidArgument("customer phone is invalid")
+		return errs.InvalidArgument("Номер телефона недействителен")
 	case input.DeliveryAddress == "" || len(input.DeliveryAddress) > 1000:
-		return errs.InvalidArgument("delivery address is invalid")
+		return errs.InvalidArgument("Адрес доставки недействителен.")
 	case len(input.Items) == 0 || len(input.Items) > 100:
-		return errs.InvalidArgument("order items count is invalid")
+		return errs.InvalidArgument("Недопустимое количество позиций в заказе")
 	}
 
 	seen := make(map[uuid.UUID]struct{}, len(input.Items))

@@ -14,6 +14,10 @@ func (a *API) CreateRestaurantOrder(
 	ctx context.Context,
 	request *partnerpb.CreateRestaurantOrderRequest,
 ) (*partnerpb.CreateRestaurantOrderResponse, error) {
+	if err := a.validateRestaurantID(request.GetRestaurantId()); err != nil {
+		return nil, grpcError(err)
+	}
+
 	input, err := converter.CreateOrderFromProto(request)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -24,5 +28,7 @@ func (a *API) CreateRestaurantOrder(
 		a.logError("create restaurant order", err)
 		return nil, grpcError(err)
 	}
-	return &partnerpb.CreateRestaurantOrderResponse{Order: converter.OrderToProto(order)}, nil
+	return &partnerpb.CreateRestaurantOrderResponse{
+		Order: converter.OrderToProto(a.restaurantID, order),
+	}, nil
 }

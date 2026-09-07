@@ -11,20 +11,20 @@ type OrderStatus string
 
 const (
 	// OrderStatusAccepted означает, что ресторан принял заказ.
-	OrderStatusAccepted OrderStatus = "accepted"
+	OrderStatusAccepted OrderStatus = "ACCEPTED"
 
 	// OrderStatusPreparing означает, что ресторан готовит заказ.
-	OrderStatusPreparing OrderStatus = "preparing"
+	OrderStatusPreparing OrderStatus = "PREPARING"
 
 	// OrderStatusReady означает, что заказ приготовлен и готов к передаче.
-	OrderStatusReady OrderStatus = "ready"
+	OrderStatusReady OrderStatus = "READY"
 
 	// OrderStatusDelivering означает, что заказ находится в доставке.
-	OrderStatusDelivering OrderStatus = "delivering"
+	OrderStatusDelivering OrderStatus = "DELIVERING"
 
 	// OrderStatusDelivered означает, что заказ доставлен.
 	// Это терминальный статус.
-	OrderStatusDelivered OrderStatus = "delivered"
+	OrderStatusDelivered OrderStatus = "DELIVERED"
 )
 
 // Order описывает заказ, полученный рестораном из Kitchen.
@@ -32,9 +32,6 @@ const (
 type Order struct {
 	// ID — уникальный идентификатор заказа в Kitchen.
 	ID uuid.UUID
-
-	// RestaurantID — идентификатор ресторана, которому принадлежит заказ.
-	RestaurantID uuid.UUID
 
 	// Status — текущее состояние заказа.
 	Status OrderStatus
@@ -51,8 +48,8 @@ type Order struct {
 	// Items — позиции заказа. Это связь «один заказ — много позиций».
 	Items []OrderItem
 
-	// TotalMinor — полная стоимость заказа в минимальных единицах валюты.
-	TotalMinor int64
+	// TotalPrice — полная стоимость заказа в минимальных единицах валюты.
+	TotalPrice int64
 
 	// Currency — трёхбуквенный код валюты, например RUB.
 	Currency string
@@ -73,15 +70,15 @@ type OrderItem struct {
 	// Name — snapshot названия блюда на момент создания заказа.
 	Name string
 
-	// UnitPriceMinor — snapshot цены одной единицы блюда
+	// Price — snapshot цены одной единицы блюда
 	// в минимальных единицах валюты.
-	UnitPriceMinor int64
+	Price int64
 
 	// Quantity — количество заказанных единиц блюда.
 	Quantity int
 
-	// LineTotalMinor — стоимость позиции: UnitPriceMinor * Quantity.
-	LineTotalMinor int64
+	// LineTotalPrice — стоимость позиции: Price * Quantity.
+	LineTotalPrice int64
 }
 
 type CreateOrderItem struct {
@@ -92,13 +89,13 @@ type CreateOrderItem struct {
 
 type CreateOrder struct {
 	ID              uuid.UUID
-	RestaurantID    uuid.UUID
 	CustomerName    string
 	CustomerPhone   string
 	DeliveryAddress string
 	Items           []CreateOrderItem
 }
 
+// TODO точно нужно это?
 type OrderStatusHistory struct {
 	OrderID    uuid.UUID
 	FromStatus *OrderStatus

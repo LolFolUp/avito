@@ -74,7 +74,7 @@ func OrderToOpenAPI(source model.Order) *openapi.Order {
 			Name:           item.Name,
 			UnitPriceMinor: item.UnitPriceMinor,
 			Quantity:       item.Quantity,
-			LineTotalMinor: item.LineTotalMinor,
+			LineTotalMinor: item.LineTotalPrice,
 		})
 	}
 
@@ -86,7 +86,7 @@ func OrderToOpenAPI(source model.Order) *openapi.Order {
 		CustomerPhone:   source.CustomerPhone,
 		DeliveryAddress: source.DeliveryAddress,
 		Items:           items,
-		TotalMinor:      source.TotalMinor,
+		TotalMinor:      source.TotalPrice,
 		Currency:        source.Currency,
 		CreatedAt:       source.CreatedAt,
 		UpdatedAt:       source.UpdatedAt,
