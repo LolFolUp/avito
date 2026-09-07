@@ -38,6 +38,10 @@ func AlreadyExists(message string) error {
 	return &Error{Kind: KindAlreadyExists, Message: message}
 }
 
+func Unavailable(message string, cause error) error {
+	return &Error{Kind: KindUnavailable, Message: message, Cause: cause}
+}
+
 func Internal(message string, cause error) error {
 	return &Error{Kind: KindInternal, Message: message, Cause: cause}
 }

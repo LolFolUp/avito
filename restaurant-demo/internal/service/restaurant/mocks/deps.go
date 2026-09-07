@@ -12,6 +12,7 @@ package mocks
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	uuid "github.com/google/uuid"
 	model "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/model"
@@ -123,6 +124,21 @@ func (mr *MockRestaurantRepositoryMockRecorder) GetMenuItemsForUpdate(ctx, itemI
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMenuItemsForUpdate", reflect.TypeOf((*MockRestaurantRepository)(nil).GetMenuItemsForUpdate), ctx, itemIDs)
 }
 
+// GetOrderForUpdate mocks base method.
+func (m *MockRestaurantRepository) GetOrderForUpdate(ctx context.Context, id uuid.UUID) (model.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrderForUpdate", ctx, id)
+	ret0, _ := ret[0].(model.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrderForUpdate indicates an expected call of GetOrderForUpdate.
+func (mr *MockRestaurantRepositoryMockRecorder) GetOrderForUpdate(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrderForUpdate", reflect.TypeOf((*MockRestaurantRepository)(nil).GetOrderForUpdate), ctx, id)
+}
+
 // ListMenu mocks base method.
 func (m *MockRestaurantRepository) ListMenu(ctx context.Context) ([]model.MenuItem, error) {
 	m.ctrl.T.Helper()
@@ -150,4 +166,57 @@ func (m *MockRestaurantRepository) ReserveMenuItem(ctx context.Context, itemID u
 func (mr *MockRestaurantRepositoryMockRecorder) ReserveMenuItem(ctx, itemID, quantity any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReserveMenuItem", reflect.TypeOf((*MockRestaurantRepository)(nil).ReserveMenuItem), ctx, itemID, quantity)
+}
+
+// UpdateOrderStatus mocks base method.
+func (m *MockRestaurantRepository) UpdateOrderStatus(ctx context.Context, id uuid.UUID, status model.OrderStatus) (time.Time, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateOrderStatus", ctx, id, status)
+	ret0, _ := ret[0].(time.Time)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateOrderStatus indicates an expected call of UpdateOrderStatus.
+func (mr *MockRestaurantRepositoryMockRecorder) UpdateOrderStatus(ctx, id, status any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderStatus", reflect.TypeOf((*MockRestaurantRepository)(nil).UpdateOrderStatus), ctx, id, status)
+}
+
+// MockKitchenClient is a mock of KitchenClient interface.
+type MockKitchenClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockKitchenClientMockRecorder
+	isgomock struct{}
+}
+
+// MockKitchenClientMockRecorder is the mock recorder for MockKitchenClient.
+type MockKitchenClientMockRecorder struct {
+	mock *MockKitchenClient
+}
+
+// NewMockKitchenClient creates a new mock instance.
+func NewMockKitchenClient(ctrl *gomock.Controller) *MockKitchenClient {
+	mock := &MockKitchenClient{ctrl: ctrl}
+	mock.recorder = &MockKitchenClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockKitchenClient) EXPECT() *MockKitchenClientMockRecorder {
+	return m.recorder
+}
+
+// UpdateOrderStatus mocks base method.
+func (m *MockKitchenClient) UpdateOrderStatus(ctx context.Context, input model.UpdateOrderStatus) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateOrderStatus", ctx, input)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateOrderStatus indicates an expected call of UpdateOrderStatus.
+func (mr *MockKitchenClientMockRecorder) UpdateOrderStatus(ctx, input any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderStatus", reflect.TypeOf((*MockKitchenClient)(nil).UpdateOrderStatus), ctx, input)
 }

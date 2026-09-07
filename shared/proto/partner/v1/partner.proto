@@ -16,6 +16,16 @@ service RestaurantService {
   // CreateRestaurantOrder атомарно проверяет позиции и создаёт заказ в ресторане.
   // При успехе все позиции считаются принятыми рестораном, при ошибке заказ не создаётся.
   rpc CreateRestaurantOrder(CreateRestaurantOrderRequest) returns (CreateRestaurantOrderResponse);
+
+  // UpdateRestaurantOrderStatus имитирует действие системы ресторана:
+  // меняет локальный статус заказа и синхронно сообщает новый статус в Kitchen.
+  rpc UpdateRestaurantOrderStatus(UpdateRestaurantOrderStatusRequest) returns (UpdateRestaurantOrderStatusResponse);
+}
+
+// KitchenPartnerService — закрытый API Kitchen, вызываемый заведениями.
+service KitchenPartnerService {
+  // UpdateOrderStatus обновляет публичное состояние заказа и его историю в Kitchen.
+  rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (UpdateOrderStatusResponse);
 }
 
 // RestaurantOrderStatus описывает состояние заказа внутри restaurant-demo.
@@ -168,4 +178,58 @@ message RestaurantOrderItem {
 
   // Стоимость строки: unit_price_minor * quantity.
   int64 line_total_minor = 5;
+}
+
+// UpdateRestaurantOrderStatusRequest задаёт переход статуса в restaurant-demo.
+message UpdateRestaurantOrderStatusRequest {
+  // UUID ресторана из каталога Kitchen.
+  string restaurant_id = 1;
+
+  // UUID изменяемого заказа.
+  string order_id = 2;
+
+  // Статус, в котором заказ должен находиться до изменения.
+  RestaurantOrderStatus expected_status = 3;
+
+  // Новый статус заказа.
+  RestaurantOrderStatus new_status = 4;
+}
+
+// UpdateRestaurantOrderStatusResponse подтверждает статус в обеих системах.
+message UpdateRestaurantOrderStatusResponse {
+  // UUID изменённого заказа.
+  string order_id = 1;
+
+  // Новый статус заказа.
+  RestaurantOrderStatus status = 2;
+
+  // Момент изменения заказа в restaurant-demo.
+  google.protobuf.Timestamp updated_at = 3;
+}
+
+// UpdateOrderStatusRequest задаёт переход статуса, отправляемый заведением в Kitchen.
+message UpdateOrderStatusRequest {
+  // UUID ресторана, которому принадлежит заказ.
+  string restaurant_id = 1;
+
+  // UUID изменяемого заказа.
+  string order_id = 2;
+
+  // Статус, который заведение наблюдало до изменения.
+  RestaurantOrderStatus expected_status = 3;
+
+  // Новый статус заказа.
+  RestaurantOrderStatus new_status = 4;
+}
+
+// UpdateOrderStatusResponse содержит состояние, сохранённое в Kitchen.
+message UpdateOrderStatusResponse {
+  // UUID изменённого заказа.
+  string order_id = 1;
+
+  // Новый статус заказа.
+  RestaurantOrderStatus status = 2;
+
+  // Момент изменения заказа в Kitchen.
+  google.protobuf.Timestamp updated_at = 3;
 }

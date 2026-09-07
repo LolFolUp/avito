@@ -2,6 +2,7 @@ package restaurant
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -18,4 +19,10 @@ type RestaurantRepository interface {
 	ReserveMenuItem(ctx context.Context, itemID uuid.UUID, quantity int) error
 	CreateOrder(ctx context.Context, order model.Order) error
 	CreateOrderStatusHistory(ctx context.Context, history model.OrderStatusHistory) error
+	GetOrderForUpdate(ctx context.Context, id uuid.UUID) (model.Order, error)
+	UpdateOrderStatus(ctx context.Context, id uuid.UUID, status model.OrderStatus) (time.Time, error)
+}
+
+type KitchenClient interface {
+	UpdateOrderStatus(ctx context.Context, input model.UpdateOrderStatus) error
 }

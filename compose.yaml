@@ -69,9 +69,11 @@ services:
     environment:
       DATABASE_URL: postgres://${KITCHEN_POSTGRES_USER:-kitchen}:${KITCHEN_POSTGRES_PASSWORD:-kitchen}@kitchen-postgres:5432/${KITCHEN_POSTGRES_DB:-kitchen}?sslmode=disable
       KITCHEN_HTTP_ADDR: :8080
-      RESTAURANT_GRPC_ROUTES: ${RESTAURANT_GRPC_ROUTES:-00000000-0000-0000-0000-000000000001=restaurant-demo:9090}
+      KITCHEN_GRPC_ADDR: :9090
+      RESTAURANT_GRPC_ROUTES: ${RESTAURANT_GRPC_ROUTES:-00000000-0000-0000-0000-000000000001=restaurant-demo:9091}
     ports:
       - "127.0.0.1:${KITCHEN_HTTP_PORT:-8080}:8080"
+      - "127.0.0.1:${KITCHEN_GRPC_PORT:-9090}:9090"
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8080/readyz"]
       interval: 2s
@@ -91,12 +93,13 @@ services:
       dockerfile: deploy/docker/restaurant-demo.Dockerfile
     environment:
       DATABASE_URL: postgres://${RESTAURANT_POSTGRES_USER:-restaurant}:${RESTAURANT_POSTGRES_PASSWORD:-restaurant}@restaurant-postgres:5432/${RESTAURANT_POSTGRES_DB:-restaurant}?sslmode=disable
-      RESTAURANT_GRPC_ADDR: :9090
+      RESTAURANT_GRPC_ADDR: :9091
+      KITCHEN_GRPC_TARGET: kitchen-api:9090
       RESTAURANT_ID: ${RESTAURANT_ID:-00000000-0000-0000-0000-000000000001}
     ports:
-      - "127.0.0.1:${RESTAURANT_GRPC_PORT:-9090}:9090"
+      - "127.0.0.1:${RESTAURANT_GRPC_PORT:-9091}:9091"
     healthcheck:
-      test: ["CMD", "nc", "-z", "127.0.0.1", "9090"]
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9091"]
       interval: 2s
       timeout: 2s
       retries: 15

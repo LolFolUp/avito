@@ -38,7 +38,7 @@ func TestCreateOrderAtomicallyReservesItem(t *testing.T) {
 	}
 	repository := restaurantrepo.New(pool, trmpgx.DefaultCtxGetter)
 
-	service := restaurant.New(repository, txManager, nil)
+	service := restaurant.New(repository, txManager, nil, nil)
 	itemID := uuid.New()
 	orderID := uuid.New()
 	_, err = pool.Exec(ctx, `

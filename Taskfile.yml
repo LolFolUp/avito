@@ -3,6 +3,9 @@ version: "3"
 vars:
   KITCHEN_DATABASE_URL: '{{default "postgres://kitchen:kitchen@localhost:15432/kitchen?sslmode=disable" .KITCHEN_DATABASE_URL}}'
   RESTAURANT_DATABASE_URL: '{{default "postgres://restaurant:restaurant@localhost:15433/restaurant?sslmode=disable" .RESTAURANT_DATABASE_URL}}'
+  # golangci-lint не добавлен в go.mod намеренно: он тянет директиву go на 1.26,
+  # а образы сборки закреплены на golang:1.25.10-alpine. Версия зафиксирована здесь.
+  GOLANGCI_LINT_VERSION: v2.6.2
 
 tasks:
   gen:
@@ -37,18 +40,21 @@ tasks:
     desc: Generate mocks from dependency interfaces
     sources:
       - kitchen/internal/api/kitchen/v1/deps.go
+      - kitchen/internal/api/partner/v1/deps.go
       - kitchen/internal/service/catalog/deps.go
       - kitchen/internal/service/order/deps.go
       - restaurant-demo/internal/api/partner/v1/deps.go
       - restaurant-demo/internal/service/restaurant/deps.go
     generates:
       - kitchen/internal/api/kitchen/v1/mocks/deps.go
+      - kitchen/internal/api/partner/v1/mocks/deps.go
       - kitchen/internal/service/catalog/mocks/deps.go
       - kitchen/internal/service/order/mocks/deps.go
       - restaurant-demo/internal/api/partner/v1/mocks/deps.go
       - restaurant-demo/internal/service/restaurant/mocks/deps.go
     cmds:
       - go tool mockgen -source=kitchen/internal/api/kitchen/v1/deps.go -destination=kitchen/internal/api/kitchen/v1/mocks/deps.go -package=mocks
+      - go tool mockgen -source=kitchen/internal/api/partner/v1/deps.go -destination=kitchen/internal/api/partner/v1/mocks/deps.go -package=mocks
       - go tool mockgen -source=kitchen/internal/service/catalog/deps.go -destination=kitchen/internal/service/catalog/mocks/deps.go -package=mocks
       - go tool mockgen -source=kitchen/internal/service/order/deps.go -destination=kitchen/internal/service/order/mocks/deps.go -package=mocks
       - go tool mockgen -source=restaurant-demo/internal/api/partner/v1/deps.go -destination=restaurant-demo/internal/api/partner/v1/mocks/deps.go -package=mocks
@@ -131,4 +137,10 @@ tasks:
     desc: Run static and contract checks
     cmds:
       - go vet ./...
+      - go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}} run ./...
       - go tool buf lint
+
+  lint:fix:
+    desc: Apply linter and formatter autofixes
+    cmds:
+      - go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}} run --fix ./...

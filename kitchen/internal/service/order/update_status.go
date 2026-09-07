@@ -41,16 +41,16 @@ func (s *Service) UpdateStatus(
 		if current.RestaurantID != restaurantID {
 			return errs.NotFound("order")
 		}
+		if current.Status == newStatus {
+			updated, err = s.orders.GetOrder(txCtx, orderID)
+			return err
+		}
 		if current.Status != expectedStatus {
 			return errs.FailedPrecondition(
 				errs.CodeStatusConflict,
 				"order status differs from expected status",
 				nil,
 			)
-		}
-		if current.Status == newStatus {
-			updated, err = s.orders.GetOrder(txCtx, orderID)
-			return err
 		}
 		if !canTransition(current.Status, newStatus) {
 			return errs.FailedPrecondition(

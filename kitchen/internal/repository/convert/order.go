@@ -2,6 +2,7 @@ package convert
 
 import (
 	"github.com/jackc/pgx/v5/pgtype"
+
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/model"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/repository/record"
 )

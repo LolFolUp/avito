@@ -27,28 +27,41 @@ func newHTTPServer(address string, handler http.Handler) *http.Server {
 }
 
 func (a *App) Run(ctx context.Context) error {
-	serverError := make(chan error, 1)
+	grpcListener, err := a.listenGRPC()
+	if err != nil {
+		return err
+	}
+
+	serverError := make(chan error, 2)
 	go func() {
 		a.logger.Info("HTTP server started", "address", a.httpServer.Addr)
-		serverError <- a.httpServer.ListenAndServe()
+		err := a.httpServer.ListenAndServe()
+		if errors.Is(err, http.ErrServerClosed) {
+			err = nil
+		}
+		if err != nil {
+			err = fmt.Errorf("serve HTTP: %w", err)
+		}
+		serverError <- err
 	}()
+	a.serveGRPC(grpcListener, serverError)
 
+	var runError error
 	select {
 	case <-ctx.Done():
-		return a.shutdown()
-	case err := <-serverError:
-		if errors.Is(err, http.ErrServerClosed) {
-			return nil
-		}
-		return fmt.Errorf("serve HTTP: %w", err)
+	case runError = <-serverError:
 	}
+
+	return errors.Join(runError, a.shutdown())
 }
 
 func (a *App) shutdown() error {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), a.shutdownTimeout)
 	defer cancel()
-	if err := a.httpServer.Shutdown(shutdownCtx); err != nil {
-		return fmt.Errorf("shutdown HTTP server: %w", err)
+
+	httpError := a.httpServer.Shutdown(shutdownCtx)
+	if httpError != nil {
+		httpError = fmt.Errorf("shutdown HTTP server: %w", httpError)
 	}
-	return nil
+	return errors.Join(httpError, a.shutdownGRPC())
 }

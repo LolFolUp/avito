@@ -19,7 +19,7 @@ func TestCreateOrderDoesNotReserveWhenObservedVersionIsStale(t *testing.T) {
 	txManager := mocks.NewMockTxManager(ctrl)
 
 	ctx := context.Background()
-	service := restaurant.New(repository, txManager, nil)
+	service := restaurant.New(repository, txManager, nil, nil)
 	itemID := uuid.New()
 	input := model.CreateOrder{
 		ID:              uuid.New(),

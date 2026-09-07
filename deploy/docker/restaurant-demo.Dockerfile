@@ -20,6 +20,6 @@ COPY --from=builder /out/restaurant-demo /app/restaurant-demo
 
 USER app
 
-EXPOSE 9090
+EXPOSE 9091
 
 ENTRYPOINT ["/app/restaurant-demo"]

@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RestaurantService_GetMenu_FullMethodName               = "/partner.v1.RestaurantService/GetMenu"
-	RestaurantService_CreateRestaurantOrder_FullMethodName = "/partner.v1.RestaurantService/CreateRestaurantOrder"
+	RestaurantService_GetMenu_FullMethodName                     = "/partner.v1.RestaurantService/GetMenu"
+	RestaurantService_CreateRestaurantOrder_FullMethodName       = "/partner.v1.RestaurantService/CreateRestaurantOrder"
+	RestaurantService_UpdateRestaurantOrderStatus_FullMethodName = "/partner.v1.RestaurantService/UpdateRestaurantOrderStatus"
 )
 
 // RestaurantServiceClient is the client API for RestaurantService service.
@@ -36,6 +37,9 @@ type RestaurantServiceClient interface {
 	// CreateRestaurantOrder атомарно проверяет позиции и создаёт заказ в ресторане.
 	// При успехе все позиции считаются принятыми рестораном, при ошибке заказ не создаётся.
 	CreateRestaurantOrder(ctx context.Context, in *CreateRestaurantOrderRequest, opts ...grpc.CallOption) (*CreateRestaurantOrderResponse, error)
+	// UpdateRestaurantOrderStatus имитирует действие системы ресторана:
+	// меняет локальный статус заказа и синхронно сообщает новый статус в Kitchen.
+	UpdateRestaurantOrderStatus(ctx context.Context, in *UpdateRestaurantOrderStatusRequest, opts ...grpc.CallOption) (*UpdateRestaurantOrderStatusResponse, error)
 }
 
 type restaurantServiceClient struct {
@@ -66,6 +70,16 @@ func (c *restaurantServiceClient) CreateRestaurantOrder(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *restaurantServiceClient) UpdateRestaurantOrderStatus(ctx context.Context, in *UpdateRestaurantOrderStatusRequest, opts ...grpc.CallOption) (*UpdateRestaurantOrderStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateRestaurantOrderStatusResponse)
+	err := c.cc.Invoke(ctx, RestaurantService_UpdateRestaurantOrderStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RestaurantServiceServer is the server API for RestaurantService service.
 // All implementations must embed UnimplementedRestaurantServiceServer
 // for forward compatibility.
@@ -79,6 +93,9 @@ type RestaurantServiceServer interface {
 	// CreateRestaurantOrder атомарно проверяет позиции и создаёт заказ в ресторане.
 	// При успехе все позиции считаются принятыми рестораном, при ошибке заказ не создаётся.
 	CreateRestaurantOrder(context.Context, *CreateRestaurantOrderRequest) (*CreateRestaurantOrderResponse, error)
+	// UpdateRestaurantOrderStatus имитирует действие системы ресторана:
+	// меняет локальный статус заказа и синхронно сообщает новый статус в Kitchen.
+	UpdateRestaurantOrderStatus(context.Context, *UpdateRestaurantOrderStatusRequest) (*UpdateRestaurantOrderStatusResponse, error)
 	mustEmbedUnimplementedRestaurantServiceServer()
 }
 
@@ -94,6 +111,9 @@ func (UnimplementedRestaurantServiceServer) GetMenu(context.Context, *GetMenuReq
 }
 func (UnimplementedRestaurantServiceServer) CreateRestaurantOrder(context.Context, *CreateRestaurantOrderRequest) (*CreateRestaurantOrderResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateRestaurantOrder not implemented")
+}
+func (UnimplementedRestaurantServiceServer) UpdateRestaurantOrderStatus(context.Context, *UpdateRestaurantOrderStatusRequest) (*UpdateRestaurantOrderStatusResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateRestaurantOrderStatus not implemented")
 }
 func (UnimplementedRestaurantServiceServer) mustEmbedUnimplementedRestaurantServiceServer() {}
 func (UnimplementedRestaurantServiceServer) testEmbeddedByValue()                           {}
@@ -152,6 +172,24 @@ func _RestaurantService_CreateRestaurantOrder_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RestaurantService_UpdateRestaurantOrderStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRestaurantOrderStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RestaurantServiceServer).UpdateRestaurantOrderStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RestaurantService_UpdateRestaurantOrderStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RestaurantServiceServer).UpdateRestaurantOrderStatus(ctx, req.(*UpdateRestaurantOrderStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RestaurantService_ServiceDesc is the grpc.ServiceDesc for RestaurantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -166,6 +204,118 @@ var RestaurantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateRestaurantOrder",
 			Handler:    _RestaurantService_CreateRestaurantOrder_Handler,
+		},
+		{
+			MethodName: "UpdateRestaurantOrderStatus",
+			Handler:    _RestaurantService_UpdateRestaurantOrderStatus_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "partner/v1/partner.proto",
+}
+
+const (
+	KitchenPartnerService_UpdateOrderStatus_FullMethodName = "/partner.v1.KitchenPartnerService/UpdateOrderStatus"
+)
+
+// KitchenPartnerServiceClient is the client API for KitchenPartnerService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// KitchenPartnerService — закрытый API Kitchen, вызываемый заведениями.
+type KitchenPartnerServiceClient interface {
+	// UpdateOrderStatus обновляет публичное состояние заказа и его историю в Kitchen.
+	UpdateOrderStatus(ctx context.Context, in *UpdateOrderStatusRequest, opts ...grpc.CallOption) (*UpdateOrderStatusResponse, error)
+}
+
+type kitchenPartnerServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewKitchenPartnerServiceClient(cc grpc.ClientConnInterface) KitchenPartnerServiceClient {
+	return &kitchenPartnerServiceClient{cc}
+}
+
+func (c *kitchenPartnerServiceClient) UpdateOrderStatus(ctx context.Context, in *UpdateOrderStatusRequest, opts ...grpc.CallOption) (*UpdateOrderStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateOrderStatusResponse)
+	err := c.cc.Invoke(ctx, KitchenPartnerService_UpdateOrderStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// KitchenPartnerServiceServer is the server API for KitchenPartnerService service.
+// All implementations must embed UnimplementedKitchenPartnerServiceServer
+// for forward compatibility.
+//
+// KitchenPartnerService — закрытый API Kitchen, вызываемый заведениями.
+type KitchenPartnerServiceServer interface {
+	// UpdateOrderStatus обновляет публичное состояние заказа и его историю в Kitchen.
+	UpdateOrderStatus(context.Context, *UpdateOrderStatusRequest) (*UpdateOrderStatusResponse, error)
+	mustEmbedUnimplementedKitchenPartnerServiceServer()
+}
+
+// UnimplementedKitchenPartnerServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedKitchenPartnerServiceServer struct{}
+
+func (UnimplementedKitchenPartnerServiceServer) UpdateOrderStatus(context.Context, *UpdateOrderStatusRequest) (*UpdateOrderStatusResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateOrderStatus not implemented")
+}
+func (UnimplementedKitchenPartnerServiceServer) mustEmbedUnimplementedKitchenPartnerServiceServer() {}
+func (UnimplementedKitchenPartnerServiceServer) testEmbeddedByValue()                               {}
+
+// UnsafeKitchenPartnerServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to KitchenPartnerServiceServer will
+// result in compilation errors.
+type UnsafeKitchenPartnerServiceServer interface {
+	mustEmbedUnimplementedKitchenPartnerServiceServer()
+}
+
+func RegisterKitchenPartnerServiceServer(s grpc.ServiceRegistrar, srv KitchenPartnerServiceServer) {
+	// If the following call panics, it indicates UnimplementedKitchenPartnerServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&KitchenPartnerService_ServiceDesc, srv)
+}
+
+func _KitchenPartnerService_UpdateOrderStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateOrderStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KitchenPartnerServiceServer).UpdateOrderStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KitchenPartnerService_UpdateOrderStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KitchenPartnerServiceServer).UpdateOrderStatus(ctx, req.(*UpdateOrderStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// KitchenPartnerService_ServiceDesc is the grpc.ServiceDesc for KitchenPartnerService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var KitchenPartnerService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "partner.v1.KitchenPartnerService",
+	HandlerType: (*KitchenPartnerServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "UpdateOrderStatus",
+			Handler:    _KitchenPartnerService_UpdateOrderStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

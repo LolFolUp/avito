@@ -134,20 +134,6 @@ func (mr *MockOrderRepositoryMockRecorder) CreateOrder(ctx, order any) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrder", reflect.TypeOf((*MockOrderRepository)(nil).CreateOrder), ctx, order)
 }
 
-// CreateOrderItems mocks base method.
-func (m *MockOrderRepository) CreateOrderItems(ctx context.Context, items []model.OrderItem) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateOrderItems", ctx, items)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// CreateOrderItems indicates an expected call of CreateOrderItems.
-func (mr *MockOrderRepositoryMockRecorder) CreateOrderItems(ctx, items any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrderItems", reflect.TypeOf((*MockOrderRepository)(nil).CreateOrderItems), ctx, items)
-}
-
 // CreateOrderStatusHistory mocks base method.
 func (m *MockOrderRepository) CreateOrderStatusHistory(ctx context.Context, history model.OrderStatusHistory) error {
 	m.ctrl.T.Helper()

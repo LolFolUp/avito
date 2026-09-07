@@ -1,8 +1,9 @@
 package record
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Order struct {

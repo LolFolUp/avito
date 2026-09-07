@@ -95,7 +95,29 @@ type CreateOrder struct {
 	Items           []CreateOrderItem
 }
 
-// TODO точно нужно это?
+// UpdateOrderStatus задаёт ожидаемый и новый статусы заказа.
+type UpdateOrderStatus struct {
+	// RestaurantID — идентификатор этого экземпляра restaurant-demo в Kitchen.
+	RestaurantID uuid.UUID
+	// OrderID — идентификатор изменяемого заказа.
+	OrderID uuid.UUID
+	// ExpectedStatus — статус, в котором заказ должен находиться до изменения.
+	ExpectedStatus OrderStatus
+	// NewStatus — статус, в который требуется перевести заказ.
+	NewStatus OrderStatus
+}
+
+// OrderStatusChange содержит результат смены статуса ресторанного заказа.
+type OrderStatusChange struct {
+	// OrderID — идентификатор изменённого заказа.
+	OrderID uuid.UUID
+	// Status — новый статус заказа.
+	Status OrderStatus
+	// UpdatedAt — момент изменения заказа в restaurant-demo.
+	UpdatedAt time.Time
+}
+
+// OrderStatusHistory описывает один переход статуса заказа.
 type OrderStatusHistory struct {
 	OrderID    uuid.UUID
 	FromStatus *OrderStatus

@@ -9,4 +9,5 @@ import (
 type RestaurantService interface {
 	GetMenu(ctx context.Context) ([]model.MenuItem, error)
 	CreateOrder(ctx context.Context, input model.CreateOrder) (model.Order, error)
+	UpdateOrderStatus(ctx context.Context, input model.UpdateOrderStatus) (model.OrderStatusChange, error)
 }

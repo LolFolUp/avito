@@ -12,5 +12,4 @@ func (s *Service) GetMenu(ctx context.Context) ([]model.MenuItem, error) {
 		return []model.MenuItem{}, err
 	}
 	return menu, nil
-
 }

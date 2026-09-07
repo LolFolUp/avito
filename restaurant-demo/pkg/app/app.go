@@ -10,10 +10,12 @@ import (
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
 	partnerapi "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/api/partner/v1"
+	kitchenclient "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/client/grpc/kitchen/v1"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/config"
 	restaurantrepo "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/repository/restaurant"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/service/restaurant"
@@ -21,12 +23,13 @@ import (
 )
 
 type App struct {
-	pool            *pgxpool.Pool
-	grpcServer      *grpc.Server
-	grpcHealth      *health.Server
-	grpcAddress     string
-	shutdownTimeout time.Duration
-	logger          *slog.Logger
+	pool              *pgxpool.Pool
+	grpcServer        *grpc.Server
+	kitchenConnection *grpc.ClientConn
+	grpcHealth        *health.Server
+	grpcAddress       string
+	shutdownTimeout   time.Duration
+	logger            *slog.Logger
 }
 
 func New(ctx context.Context, cfg config.Config, logger *slog.Logger) (*App, error) {
@@ -57,8 +60,18 @@ func New(ctx context.Context, cfg config.Config, logger *slog.Logger) (*App, err
 		return nil, fmt.Errorf("create transaction manager: %w", err)
 	}
 
+	kitchenConnection, err := grpc.NewClient(
+		cfg.KitchenGRPCTarget,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		pool.Close()
+		return nil, fmt.Errorf("create Kitchen gRPC connection: %w", err)
+	}
+
 	repository := restaurantrepo.New(pool, trmpgx.DefaultCtxGetter)
-	service := restaurant.New(repository, txManager, logger)
+	kitchenClient := kitchenclient.New(partnerpb.NewKitchenPartnerServiceClient(kitchenConnection))
+	service := restaurant.New(repository, txManager, kitchenClient, logger)
 	grpcServer := grpc.NewServer()
 	partnerpb.RegisterRestaurantServiceServer(
 		grpcServer,
@@ -70,15 +83,17 @@ func New(ctx context.Context, cfg config.Config, logger *slog.Logger) (*App, err
 	grpcHealth.SetServingStatus("", healthpb.HealthCheckResponse_SERVING)
 
 	return &App{
-		pool:            pool,
-		grpcServer:      grpcServer,
-		grpcHealth:      grpcHealth,
-		grpcAddress:     cfg.GRPCAddress,
-		shutdownTimeout: cfg.ShutdownTimeout,
-		logger:          logger,
+		pool:              pool,
+		grpcServer:        grpcServer,
+		kitchenConnection: kitchenConnection,
+		grpcHealth:        grpcHealth,
+		grpcAddress:       cfg.GRPCAddress,
+		shutdownTimeout:   cfg.ShutdownTimeout,
+		logger:            logger,
 	}, nil
 }
 
 func (a *App) Close() {
+	_ = a.kitchenConnection.Close()
 	a.pool.Close()
 }

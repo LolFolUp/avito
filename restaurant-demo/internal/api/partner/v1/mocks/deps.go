@@ -70,3 +70,18 @@ func (mr *MockRestaurantServiceMockRecorder) GetMenu(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMenu", reflect.TypeOf((*MockRestaurantService)(nil).GetMenu), ctx)
 }
+
+// UpdateOrderStatus mocks base method.
+func (m *MockRestaurantService) UpdateOrderStatus(ctx context.Context, input model.UpdateOrderStatus) (model.OrderStatusChange, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateOrderStatus", ctx, input)
+	ret0, _ := ret[0].(model.OrderStatusChange)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateOrderStatus indicates an expected call of UpdateOrderStatus.
+func (mr *MockRestaurantServiceMockRecorder) UpdateOrderStatus(ctx, input any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrderStatus", reflect.TypeOf((*MockRestaurantService)(nil).UpdateOrderStatus), ctx, input)
+}

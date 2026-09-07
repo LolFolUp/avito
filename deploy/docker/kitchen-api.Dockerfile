@@ -26,7 +26,7 @@ COPY --from=kitchen-builder /out/kitchen-api /app/kitchen-api
 
 USER app
 
-EXPOSE 8080
+EXPOSE 8080 9090
 
 ENTRYPOINT ["/app/kitchen-api"]
 

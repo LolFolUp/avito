@@ -699,6 +699,280 @@ func (x *RestaurantOrderItem) GetLineTotalMinor() int64 {
 	return 0
 }
 
+// UpdateRestaurantOrderStatusRequest задаёт переход статуса в restaurant-demo.
+type UpdateRestaurantOrderStatusRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UUID ресторана из каталога Kitchen.
+	RestaurantId string `protobuf:"bytes,1,opt,name=restaurant_id,json=restaurantId,proto3" json:"restaurant_id,omitempty"`
+	// UUID изменяемого заказа.
+	OrderId string `protobuf:"bytes,2,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	// Статус, в котором заказ должен находиться до изменения.
+	ExpectedStatus RestaurantOrderStatus `protobuf:"varint,3,opt,name=expected_status,json=expectedStatus,proto3,enum=partner.v1.RestaurantOrderStatus" json:"expected_status,omitempty"`
+	// Новый статус заказа.
+	NewStatus     RestaurantOrderStatus `protobuf:"varint,4,opt,name=new_status,json=newStatus,proto3,enum=partner.v1.RestaurantOrderStatus" json:"new_status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateRestaurantOrderStatusRequest) Reset() {
+	*x = UpdateRestaurantOrderStatusRequest{}
+	mi := &file_partner_v1_partner_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateRestaurantOrderStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateRestaurantOrderStatusRequest) ProtoMessage() {}
+
+func (x *UpdateRestaurantOrderStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_partner_v1_partner_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateRestaurantOrderStatusRequest.ProtoReflect.Descriptor instead.
+func (*UpdateRestaurantOrderStatusRequest) Descriptor() ([]byte, []int) {
+	return file_partner_v1_partner_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UpdateRestaurantOrderStatusRequest) GetRestaurantId() string {
+	if x != nil {
+		return x.RestaurantId
+	}
+	return ""
+}
+
+func (x *UpdateRestaurantOrderStatusRequest) GetOrderId() string {
+	if x != nil {
+		return x.OrderId
+	}
+	return ""
+}
+
+func (x *UpdateRestaurantOrderStatusRequest) GetExpectedStatus() RestaurantOrderStatus {
+	if x != nil {
+		return x.ExpectedStatus
+	}
+	return RestaurantOrderStatus_RESTAURANT_ORDER_STATUS_UNSPECIFIED
+}
+
+func (x *UpdateRestaurantOrderStatusRequest) GetNewStatus() RestaurantOrderStatus {
+	if x != nil {
+		return x.NewStatus
+	}
+	return RestaurantOrderStatus_RESTAURANT_ORDER_STATUS_UNSPECIFIED
+}
+
+// UpdateRestaurantOrderStatusResponse подтверждает статус в обеих системах.
+type UpdateRestaurantOrderStatusResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UUID изменённого заказа.
+	OrderId string `protobuf:"bytes,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	// Новый статус заказа.
+	Status RestaurantOrderStatus `protobuf:"varint,2,opt,name=status,proto3,enum=partner.v1.RestaurantOrderStatus" json:"status,omitempty"`
+	// Момент изменения заказа в restaurant-demo.
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateRestaurantOrderStatusResponse) Reset() {
+	*x = UpdateRestaurantOrderStatusResponse{}
+	mi := &file_partner_v1_partner_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateRestaurantOrderStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateRestaurantOrderStatusResponse) ProtoMessage() {}
+
+func (x *UpdateRestaurantOrderStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_partner_v1_partner_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateRestaurantOrderStatusResponse.ProtoReflect.Descriptor instead.
+func (*UpdateRestaurantOrderStatusResponse) Descriptor() ([]byte, []int) {
+	return file_partner_v1_partner_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UpdateRestaurantOrderStatusResponse) GetOrderId() string {
+	if x != nil {
+		return x.OrderId
+	}
+	return ""
+}
+
+func (x *UpdateRestaurantOrderStatusResponse) GetStatus() RestaurantOrderStatus {
+	if x != nil {
+		return x.Status
+	}
+	return RestaurantOrderStatus_RESTAURANT_ORDER_STATUS_UNSPECIFIED
+}
+
+func (x *UpdateRestaurantOrderStatusResponse) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+// UpdateOrderStatusRequest задаёт переход статуса, отправляемый заведением в Kitchen.
+type UpdateOrderStatusRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UUID ресторана, которому принадлежит заказ.
+	RestaurantId string `protobuf:"bytes,1,opt,name=restaurant_id,json=restaurantId,proto3" json:"restaurant_id,omitempty"`
+	// UUID изменяемого заказа.
+	OrderId string `protobuf:"bytes,2,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	// Статус, который заведение наблюдало до изменения.
+	ExpectedStatus RestaurantOrderStatus `protobuf:"varint,3,opt,name=expected_status,json=expectedStatus,proto3,enum=partner.v1.RestaurantOrderStatus" json:"expected_status,omitempty"`
+	// Новый статус заказа.
+	NewStatus     RestaurantOrderStatus `protobuf:"varint,4,opt,name=new_status,json=newStatus,proto3,enum=partner.v1.RestaurantOrderStatus" json:"new_status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateOrderStatusRequest) Reset() {
+	*x = UpdateOrderStatusRequest{}
+	mi := &file_partner_v1_partner_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateOrderStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateOrderStatusRequest) ProtoMessage() {}
+
+func (x *UpdateOrderStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_partner_v1_partner_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateOrderStatusRequest.ProtoReflect.Descriptor instead.
+func (*UpdateOrderStatusRequest) Descriptor() ([]byte, []int) {
+	return file_partner_v1_partner_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *UpdateOrderStatusRequest) GetRestaurantId() string {
+	if x != nil {
+		return x.RestaurantId
+	}
+	return ""
+}
+
+func (x *UpdateOrderStatusRequest) GetOrderId() string {
+	if x != nil {
+		return x.OrderId
+	}
+	return ""
+}
+
+func (x *UpdateOrderStatusRequest) GetExpectedStatus() RestaurantOrderStatus {
+	if x != nil {
+		return x.ExpectedStatus
+	}
+	return RestaurantOrderStatus_RESTAURANT_ORDER_STATUS_UNSPECIFIED
+}
+
+func (x *UpdateOrderStatusRequest) GetNewStatus() RestaurantOrderStatus {
+	if x != nil {
+		return x.NewStatus
+	}
+	return RestaurantOrderStatus_RESTAURANT_ORDER_STATUS_UNSPECIFIED
+}
+
+// UpdateOrderStatusResponse содержит состояние, сохранённое в Kitchen.
+type UpdateOrderStatusResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// UUID изменённого заказа.
+	OrderId string `protobuf:"bytes,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	// Новый статус заказа.
+	Status RestaurantOrderStatus `protobuf:"varint,2,opt,name=status,proto3,enum=partner.v1.RestaurantOrderStatus" json:"status,omitempty"`
+	// Момент изменения заказа в Kitchen.
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateOrderStatusResponse) Reset() {
+	*x = UpdateOrderStatusResponse{}
+	mi := &file_partner_v1_partner_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateOrderStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateOrderStatusResponse) ProtoMessage() {}
+
+func (x *UpdateOrderStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_partner_v1_partner_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateOrderStatusResponse.ProtoReflect.Descriptor instead.
+func (*UpdateOrderStatusResponse) Descriptor() ([]byte, []int) {
+	return file_partner_v1_partner_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *UpdateOrderStatusResponse) GetOrderId() string {
+	if x != nil {
+		return x.OrderId
+	}
+	return ""
+}
+
+func (x *UpdateOrderStatusResponse) GetStatus() RestaurantOrderStatus {
+	if x != nil {
+		return x.Status
+	}
+	return RestaurantOrderStatus_RESTAURANT_ORDER_STATUS_UNSPECIFIED
+}
+
+func (x *UpdateOrderStatusResponse) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
 var File_partner_v1_partner_proto protoreflect.FileDescriptor
 
 const file_partner_v1_partner_proto_rawDesc = "" +
@@ -754,17 +1028,42 @@ const file_partner_v1_partner_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12(\n" +
 	"\x10unit_price_minor\x18\x03 \x01(\x03R\x0eunitPriceMinor\x12\x1a\n" +
 	"\bquantity\x18\x04 \x01(\x05R\bquantity\x12(\n" +
-	"\x10line_total_minor\x18\x05 \x01(\x03R\x0elineTotalMinor*\xff\x01\n" +
+	"\x10line_total_minor\x18\x05 \x01(\x03R\x0elineTotalMinor\"\xf2\x01\n" +
+	"\"UpdateRestaurantOrderStatusRequest\x12#\n" +
+	"\rrestaurant_id\x18\x01 \x01(\tR\frestaurantId\x12\x19\n" +
+	"\border_id\x18\x02 \x01(\tR\aorderId\x12J\n" +
+	"\x0fexpected_status\x18\x03 \x01(\x0e2!.partner.v1.RestaurantOrderStatusR\x0eexpectedStatus\x12@\n" +
+	"\n" +
+	"new_status\x18\x04 \x01(\x0e2!.partner.v1.RestaurantOrderStatusR\tnewStatus\"\xb6\x01\n" +
+	"#UpdateRestaurantOrderStatusResponse\x12\x19\n" +
+	"\border_id\x18\x01 \x01(\tR\aorderId\x129\n" +
+	"\x06status\x18\x02 \x01(\x0e2!.partner.v1.RestaurantOrderStatusR\x06status\x129\n" +
+	"\n" +
+	"updated_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xe8\x01\n" +
+	"\x18UpdateOrderStatusRequest\x12#\n" +
+	"\rrestaurant_id\x18\x01 \x01(\tR\frestaurantId\x12\x19\n" +
+	"\border_id\x18\x02 \x01(\tR\aorderId\x12J\n" +
+	"\x0fexpected_status\x18\x03 \x01(\x0e2!.partner.v1.RestaurantOrderStatusR\x0eexpectedStatus\x12@\n" +
+	"\n" +
+	"new_status\x18\x04 \x01(\x0e2!.partner.v1.RestaurantOrderStatusR\tnewStatus\"\xac\x01\n" +
+	"\x19UpdateOrderStatusResponse\x12\x19\n" +
+	"\border_id\x18\x01 \x01(\tR\aorderId\x129\n" +
+	"\x06status\x18\x02 \x01(\x0e2!.partner.v1.RestaurantOrderStatusR\x06status\x129\n" +
+	"\n" +
+	"updated_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt*\xff\x01\n" +
 	"\x15RestaurantOrderStatus\x12'\n" +
 	"#RESTAURANT_ORDER_STATUS_UNSPECIFIED\x10\x00\x12$\n" +
 	" RESTAURANT_ORDER_STATUS_ACCEPTED\x10\x01\x12%\n" +
 	"!RESTAURANT_ORDER_STATUS_PREPARING\x10\x02\x12!\n" +
 	"\x1dRESTAURANT_ORDER_STATUS_READY\x10\x03\x12&\n" +
 	"\"RESTAURANT_ORDER_STATUS_DELIVERING\x10\x04\x12%\n" +
-	"!RESTAURANT_ORDER_STATUS_DELIVERED\x10\x052\xc5\x01\n" +
+	"!RESTAURANT_ORDER_STATUS_DELIVERED\x10\x052\xc5\x02\n" +
 	"\x11RestaurantService\x12B\n" +
 	"\aGetMenu\x12\x1a.partner.v1.GetMenuRequest\x1a\x1b.partner.v1.GetMenuResponse\x12l\n" +
-	"\x15CreateRestaurantOrder\x12(.partner.v1.CreateRestaurantOrderRequest\x1a).partner.v1.CreateRestaurantOrderResponseB\x80\x01Z~github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/shared/pkg/proto/partner/v1;partnerv1b\x06proto3"
+	"\x15CreateRestaurantOrder\x12(.partner.v1.CreateRestaurantOrderRequest\x1a).partner.v1.CreateRestaurantOrderResponse\x12~\n" +
+	"\x1bUpdateRestaurantOrderStatus\x12..partner.v1.UpdateRestaurantOrderStatusRequest\x1a/.partner.v1.UpdateRestaurantOrderStatusResponse2y\n" +
+	"\x15KitchenPartnerService\x12`\n" +
+	"\x11UpdateOrderStatus\x12$.partner.v1.UpdateOrderStatusRequest\x1a%.partner.v1.UpdateOrderStatusResponseB\x80\x01Z~github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/shared/pkg/proto/partner/v1;partnerv1b\x06proto3"
 
 var (
 	file_partner_v1_partner_proto_rawDescOnce sync.Once
@@ -779,36 +1078,52 @@ func file_partner_v1_partner_proto_rawDescGZIP() []byte {
 }
 
 var file_partner_v1_partner_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_partner_v1_partner_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_partner_v1_partner_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_partner_v1_partner_proto_goTypes = []any{
-	(RestaurantOrderStatus)(0),            // 0: partner.v1.RestaurantOrderStatus
-	(*MenuItem)(nil),                      // 1: partner.v1.MenuItem
-	(*GetMenuRequest)(nil),                // 2: partner.v1.GetMenuRequest
-	(*GetMenuResponse)(nil),               // 3: partner.v1.GetMenuResponse
-	(*CreateRestaurantOrderItem)(nil),     // 4: partner.v1.CreateRestaurantOrderItem
-	(*CreateRestaurantOrderRequest)(nil),  // 5: partner.v1.CreateRestaurantOrderRequest
-	(*CreateRestaurantOrderResponse)(nil), // 6: partner.v1.CreateRestaurantOrderResponse
-	(*RestaurantOrder)(nil),               // 7: partner.v1.RestaurantOrder
-	(*RestaurantOrderItem)(nil),           // 8: partner.v1.RestaurantOrderItem
-	(*timestamppb.Timestamp)(nil),         // 9: google.protobuf.Timestamp
+	(RestaurantOrderStatus)(0),                  // 0: partner.v1.RestaurantOrderStatus
+	(*MenuItem)(nil),                            // 1: partner.v1.MenuItem
+	(*GetMenuRequest)(nil),                      // 2: partner.v1.GetMenuRequest
+	(*GetMenuResponse)(nil),                     // 3: partner.v1.GetMenuResponse
+	(*CreateRestaurantOrderItem)(nil),           // 4: partner.v1.CreateRestaurantOrderItem
+	(*CreateRestaurantOrderRequest)(nil),        // 5: partner.v1.CreateRestaurantOrderRequest
+	(*CreateRestaurantOrderResponse)(nil),       // 6: partner.v1.CreateRestaurantOrderResponse
+	(*RestaurantOrder)(nil),                     // 7: partner.v1.RestaurantOrder
+	(*RestaurantOrderItem)(nil),                 // 8: partner.v1.RestaurantOrderItem
+	(*UpdateRestaurantOrderStatusRequest)(nil),  // 9: partner.v1.UpdateRestaurantOrderStatusRequest
+	(*UpdateRestaurantOrderStatusResponse)(nil), // 10: partner.v1.UpdateRestaurantOrderStatusResponse
+	(*UpdateOrderStatusRequest)(nil),            // 11: partner.v1.UpdateOrderStatusRequest
+	(*UpdateOrderStatusResponse)(nil),           // 12: partner.v1.UpdateOrderStatusResponse
+	(*timestamppb.Timestamp)(nil),               // 13: google.protobuf.Timestamp
 }
 var file_partner_v1_partner_proto_depIdxs = []int32{
-	1, // 0: partner.v1.GetMenuResponse.items:type_name -> partner.v1.MenuItem
-	4, // 1: partner.v1.CreateRestaurantOrderRequest.items:type_name -> partner.v1.CreateRestaurantOrderItem
-	7, // 2: partner.v1.CreateRestaurantOrderResponse.order:type_name -> partner.v1.RestaurantOrder
-	0, // 3: partner.v1.RestaurantOrder.status:type_name -> partner.v1.RestaurantOrderStatus
-	8, // 4: partner.v1.RestaurantOrder.items:type_name -> partner.v1.RestaurantOrderItem
-	9, // 5: partner.v1.RestaurantOrder.created_at:type_name -> google.protobuf.Timestamp
-	9, // 6: partner.v1.RestaurantOrder.updated_at:type_name -> google.protobuf.Timestamp
-	2, // 7: partner.v1.RestaurantService.GetMenu:input_type -> partner.v1.GetMenuRequest
-	5, // 8: partner.v1.RestaurantService.CreateRestaurantOrder:input_type -> partner.v1.CreateRestaurantOrderRequest
-	3, // 9: partner.v1.RestaurantService.GetMenu:output_type -> partner.v1.GetMenuResponse
-	6, // 10: partner.v1.RestaurantService.CreateRestaurantOrder:output_type -> partner.v1.CreateRestaurantOrderResponse
-	9, // [9:11] is the sub-list for method output_type
-	7, // [7:9] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	1,  // 0: partner.v1.GetMenuResponse.items:type_name -> partner.v1.MenuItem
+	4,  // 1: partner.v1.CreateRestaurantOrderRequest.items:type_name -> partner.v1.CreateRestaurantOrderItem
+	7,  // 2: partner.v1.CreateRestaurantOrderResponse.order:type_name -> partner.v1.RestaurantOrder
+	0,  // 3: partner.v1.RestaurantOrder.status:type_name -> partner.v1.RestaurantOrderStatus
+	8,  // 4: partner.v1.RestaurantOrder.items:type_name -> partner.v1.RestaurantOrderItem
+	13, // 5: partner.v1.RestaurantOrder.created_at:type_name -> google.protobuf.Timestamp
+	13, // 6: partner.v1.RestaurantOrder.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 7: partner.v1.UpdateRestaurantOrderStatusRequest.expected_status:type_name -> partner.v1.RestaurantOrderStatus
+	0,  // 8: partner.v1.UpdateRestaurantOrderStatusRequest.new_status:type_name -> partner.v1.RestaurantOrderStatus
+	0,  // 9: partner.v1.UpdateRestaurantOrderStatusResponse.status:type_name -> partner.v1.RestaurantOrderStatus
+	13, // 10: partner.v1.UpdateRestaurantOrderStatusResponse.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 11: partner.v1.UpdateOrderStatusRequest.expected_status:type_name -> partner.v1.RestaurantOrderStatus
+	0,  // 12: partner.v1.UpdateOrderStatusRequest.new_status:type_name -> partner.v1.RestaurantOrderStatus
+	0,  // 13: partner.v1.UpdateOrderStatusResponse.status:type_name -> partner.v1.RestaurantOrderStatus
+	13, // 14: partner.v1.UpdateOrderStatusResponse.updated_at:type_name -> google.protobuf.Timestamp
+	2,  // 15: partner.v1.RestaurantService.GetMenu:input_type -> partner.v1.GetMenuRequest
+	5,  // 16: partner.v1.RestaurantService.CreateRestaurantOrder:input_type -> partner.v1.CreateRestaurantOrderRequest
+	9,  // 17: partner.v1.RestaurantService.UpdateRestaurantOrderStatus:input_type -> partner.v1.UpdateRestaurantOrderStatusRequest
+	11, // 18: partner.v1.KitchenPartnerService.UpdateOrderStatus:input_type -> partner.v1.UpdateOrderStatusRequest
+	3,  // 19: partner.v1.RestaurantService.GetMenu:output_type -> partner.v1.GetMenuResponse
+	6,  // 20: partner.v1.RestaurantService.CreateRestaurantOrder:output_type -> partner.v1.CreateRestaurantOrderResponse
+	10, // 21: partner.v1.RestaurantService.UpdateRestaurantOrderStatus:output_type -> partner.v1.UpdateRestaurantOrderStatusResponse
+	12, // 22: partner.v1.KitchenPartnerService.UpdateOrderStatus:output_type -> partner.v1.UpdateOrderStatusResponse
+	19, // [19:23] is the sub-list for method output_type
+	15, // [15:19] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_partner_v1_partner_proto_init() }
@@ -822,9 +1137,9 @@ func file_partner_v1_partner_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_partner_v1_partner_proto_rawDesc), len(file_partner_v1_partner_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   12,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_partner_v1_partner_proto_goTypes,
 		DependencyIndexes: file_partner_v1_partner_proto_depIdxs,

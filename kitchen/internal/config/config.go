@@ -12,7 +12,8 @@ import (
 const (
 	defaultDatabaseURL          = "postgres://kitchen:kitchen@localhost:15432/kitchen?sslmode=disable"
 	defaultHTTPAddress          = ":8080"
-	defaultRestaurantGRPCRoutes = "00000000-0000-0000-0000-000000000001=localhost:9090"
+	defaultGRPCAddress          = ":9090"
+	defaultRestaurantGRPCRoutes = "00000000-0000-0000-0000-000000000001=localhost:9091"
 	defaultPingTimeout          = 5 * time.Second
 	defaultShutdownTimeout      = 10 * time.Second
 )
@@ -20,6 +21,7 @@ const (
 type Config struct {
 	DatabaseURL          string
 	HTTPAddress          string
+	GRPCAddress          string
 	RestaurantGRPCRoutes map[uuid.UUID]string
 	PingTimeout          time.Duration
 	ShutdownTimeout      time.Duration
@@ -36,6 +38,7 @@ func Load() (Config, error) {
 	cfg := Config{
 		DatabaseURL:          envOrDefault("DATABASE_URL", defaultDatabaseURL),
 		HTTPAddress:          envOrDefault("KITCHEN_HTTP_ADDR", defaultHTTPAddress),
+		GRPCAddress:          envOrDefault("KITCHEN_GRPC_ADDR", defaultGRPCAddress),
 		RestaurantGRPCRoutes: restaurantRoutes,
 		PingTimeout:          defaultPingTimeout,
 		ShutdownTimeout:      defaultShutdownTimeout,
@@ -46,6 +49,9 @@ func Load() (Config, error) {
 	}
 	if strings.TrimSpace(cfg.HTTPAddress) == "" {
 		return Config{}, fmt.Errorf("KITCHEN_HTTP_ADDR is required")
+	}
+	if strings.TrimSpace(cfg.GRPCAddress) == "" {
+		return Config{}, fmt.Errorf("KITCHEN_GRPC_ADDR is required")
 	}
 	return cfg, nil
 }

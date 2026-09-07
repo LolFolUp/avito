@@ -8,7 +8,7 @@ import (
 func ConvertModelOrderToRecord(model model.Order) record.Order {
 	return record.Order{
 		ID:              model.ID,
-		Status:          convertStatusToRecord(model.Status),
+		Status:          OrderStatusToRecord(model.Status),
 		CustomerName:    model.CustomerName,
 		CustomerPhone:   model.CustomerPhone,
 		DeliveryAddress: model.DeliveryAddress,
@@ -16,6 +16,20 @@ func ConvertModelOrderToRecord(model model.Order) record.Order {
 		Currency:        model.Currency,
 		CreatedAt:       model.CreatedAt,
 		UpdatedAt:       model.UpdatedAt,
+	}
+}
+
+func OrderToModel(source record.Order) model.Order {
+	return model.Order{
+		ID:              source.ID,
+		Status:          OrderStatusToModel(source.Status),
+		CustomerName:    source.CustomerName,
+		CustomerPhone:   source.CustomerPhone,
+		DeliveryAddress: source.DeliveryAddress,
+		TotalPrice:      source.TotalPrice,
+		Currency:        source.Currency,
+		CreatedAt:       source.CreatedAt,
+		UpdatedAt:       source.UpdatedAt,
 	}
 }
 
@@ -33,19 +47,10 @@ func ConvertModelOrderItemsToRecord(model []model.OrderItem) []record.OrderItem 
 	}
 	return records
 }
-func convertStatusToRecord(status model.OrderStatus) string {
-	switch status {
-	case model.OrderStatusAccepted:
-		return "ACCEPTED"
-	case model.OrderStatusPreparing:
-		return "PREPARING"
-	case model.OrderStatusReady:
-		return "READY"
-	case model.OrderStatusDelivered:
-		return "DELIVERED"
-	case model.OrderStatusDelivering:
-		return "DELIVERING"
-	default:
-		return ""
-	}
+func OrderStatusToRecord(status model.OrderStatus) string {
+	return string(status)
+}
+
+func OrderStatusToModel(status string) model.OrderStatus {
+	return model.OrderStatus(status)
 }

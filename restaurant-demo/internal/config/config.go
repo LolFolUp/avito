@@ -10,19 +10,21 @@ import (
 )
 
 const (
-	defaultDatabaseURL     = "postgres://restaurant:restaurant@localhost:15433/restaurant?sslmode=disable"
-	defaultGRPCAddress     = ":9090"
-	defaultRestaurantID    = "00000000-0000-0000-0000-000000000001"
-	defaultPingTimeout     = 5 * time.Second
-	defaultShutdownTimeout = 10 * time.Second
+	defaultDatabaseURL       = "postgres://restaurant:restaurant@localhost:15433/restaurant?sslmode=disable"
+	defaultGRPCAddress       = ":9091"
+	defaultKitchenGRPCTarget = "localhost:9090"
+	defaultRestaurantID      = "00000000-0000-0000-0000-000000000001"
+	defaultPingTimeout       = 5 * time.Second
+	defaultShutdownTimeout   = 10 * time.Second
 )
 
 type Config struct {
-	DatabaseURL     string
-	GRPCAddress     string
-	RestaurantID    uuid.UUID
-	PingTimeout     time.Duration
-	ShutdownTimeout time.Duration
+	DatabaseURL       string
+	GRPCAddress       string
+	KitchenGRPCTarget string
+	RestaurantID      uuid.UUID
+	PingTimeout       time.Duration
+	ShutdownTimeout   time.Duration
 }
 
 func Load() (Config, error) {
@@ -32,11 +34,12 @@ func Load() (Config, error) {
 	}
 
 	cfg := Config{
-		DatabaseURL:     envOrDefault("DATABASE_URL", defaultDatabaseURL),
-		GRPCAddress:     envOrDefault("RESTAURANT_GRPC_ADDR", defaultGRPCAddress),
-		RestaurantID:    restaurantID,
-		PingTimeout:     defaultPingTimeout,
-		ShutdownTimeout: defaultShutdownTimeout,
+		DatabaseURL:       envOrDefault("DATABASE_URL", defaultDatabaseURL),
+		GRPCAddress:       envOrDefault("RESTAURANT_GRPC_ADDR", defaultGRPCAddress),
+		KitchenGRPCTarget: envOrDefault("KITCHEN_GRPC_TARGET", defaultKitchenGRPCTarget),
+		RestaurantID:      restaurantID,
+		PingTimeout:       defaultPingTimeout,
+		ShutdownTimeout:   defaultShutdownTimeout,
 	}
 
 	if strings.TrimSpace(cfg.DatabaseURL) == "" {
@@ -44,6 +47,9 @@ func Load() (Config, error) {
 	}
 	if strings.TrimSpace(cfg.GRPCAddress) == "" {
 		return Config{}, fmt.Errorf("RESTAURANT_GRPC_ADDR is required")
+	}
+	if strings.TrimSpace(cfg.KitchenGRPCTarget) == "" {
+		return Config{}, fmt.Errorf("KITCHEN_GRPC_TARGET is required")
 	}
 
 	return cfg, nil

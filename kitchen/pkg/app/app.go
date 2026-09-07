@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	partnerclient "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/client/grpc/partner"
 	"log/slog"
 	"net/http"
 	"time"
@@ -11,18 +10,27 @@ import (
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
 	kitchenapi "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/api/kitchen/v1"
+	partnerapi "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/api/partner/v1"
+	partnerclient "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/client/grpc/partner"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/config"
 	kitchenrepo "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/repository/kitchen"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/service/catalog"
 	orderservice "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/kitchen/internal/service/order"
 	openapi "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/shared/pkg/openapi/kitchen/v1"
+	partnerpb "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/shared/pkg/proto/partner/v1"
 )
 
 type App struct {
 	pool            *pgxpool.Pool
 	httpServer      *http.Server
+	grpcServer      *grpc.Server
+	grpcHealth      *health.Server
+	grpcAddress     string
 	partnerResolver *partnerclient.Resolver
 	shutdownTimeout time.Duration
 	logger          *slog.Logger
@@ -74,16 +82,26 @@ func New(ctx context.Context, cfg config.Config, logger *slog.Logger) (*App, err
 		return nil, fmt.Errorf("create HTTP handler: %w", err)
 	}
 
+	grpcServer := grpc.NewServer()
+	partnerpb.RegisterKitchenPartnerServiceServer(grpcServer, partnerapi.New(orderService, logger))
+	grpcHealth := health.NewServer()
+	healthpb.RegisterHealthServer(grpcServer, grpcHealth)
+	grpcHealth.SetServingStatus("", healthpb.HealthCheckResponse_SERVING)
+
 	return &App{
 		pool:            pool,
 		partnerResolver: partnerResolver,
 		httpServer:      newHTTPServer(cfg.HTTPAddress, httpHandler),
+		grpcServer:      grpcServer,
+		grpcHealth:      grpcHealth,
+		grpcAddress:     cfg.GRPCAddress,
 		shutdownTimeout: cfg.ShutdownTimeout,
 		logger:          logger,
 	}, nil
 }
 
 func (a *App) Close() {
+	a.grpcServer.Stop()
 	_ = a.partnerResolver.Close()
 	a.pool.Close()
 }

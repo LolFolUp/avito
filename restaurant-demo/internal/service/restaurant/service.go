@@ -7,13 +7,14 @@ import (
 type Service struct {
 	repository RestaurantRepository
 	txManager  TxManager
+	kitchen    KitchenClient
 	logger     *slog.Logger
 }
 
-// TODO логировать будем?
 func New(
 	repository RestaurantRepository,
 	txManager TxManager,
+	kitchen KitchenClient,
 	logger *slog.Logger,
 ) *Service {
 	if logger == nil {
@@ -22,6 +23,7 @@ func New(
 	return &Service{
 		repository: repository,
 		txManager:  txManager,
+		kitchen:    kitchen,
 		logger:     logger,
 	}
 }
