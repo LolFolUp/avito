@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/health"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/keepalive"
 
 	partnerapi "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/api/partner/v1"
 	kitchenclient "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/client/grpc/kitchen/v1"
@@ -20,6 +21,11 @@ import (
 	restaurantrepo "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/repository/restaurant"
 	"github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/restaurant-demo/internal/service/restaurant"
 	partnerpb "github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46/shared/pkg/proto/partner/v1"
+)
+
+const (
+	grpcKeepaliveTime    = 3 * time.Minute //// Через сколько простоя отправлять ping для проверки соединения.
+	grpcKeepaliveTimeout = 1 * time.Second // // Сколько ждать ответа на ping, прежде чем считать соединение недоступным.
 )
 
 type App struct {
@@ -63,6 +69,11 @@ func New(ctx context.Context, cfg config.Config, logger *slog.Logger) (*App, err
 	kitchenConnection, err := grpc.NewClient(
 		cfg.KitchenGRPCTarget,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:                grpcKeepaliveTime,
+			Timeout:             grpcKeepaliveTimeout,
+			PermitWithoutStream: true, // Отправлять ping, даже когда нет активных gRPC-вызовов.
+		}),
 	)
 	if err != nil {
 		pool.Close()

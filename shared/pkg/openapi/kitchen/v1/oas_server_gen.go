@@ -33,7 +33,7 @@ type Handler interface {
 	//
 	// Проверить liveness процесса.
 	//
-	// GET /healthz
+	// GET /health
 	Health(ctx context.Context) (*HealthStatus, error)
 	// ListRestaurants implements listRestaurants operation.
 	//
@@ -45,7 +45,7 @@ type Handler interface {
 	//
 	// Проверить готовность сервиса.
 	//
-	// GET /readyz
+	// GET /ready
 	Readiness(ctx context.Context) (ReadinessRes, error)
 }
 

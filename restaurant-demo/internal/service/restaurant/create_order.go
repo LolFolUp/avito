@@ -128,7 +128,7 @@ func validateCreateOrder(input model.CreateOrder) error {
 	seen := make(map[uuid.UUID]struct{}, len(input.Items))
 	for _, item := range input.Items {
 		if item.MenuItemID == uuid.Nil || item.Quantity < 1 || item.Quantity > 99 || item.ObservedVersion < 1 {
-			return errs.InvalidArgument("order item is invalid")
+			return errs.InvalidArgument("Позиция в заказе недействителен")
 		}
 		if _, exists := seen[item.MenuItemID]; exists {
 			return errs.InvalidArgument("order contains duplicate menu items")

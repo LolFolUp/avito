@@ -26,7 +26,7 @@ paths:
     $ref: ./paths/orders.yaml
   /api/v1/orders/{orderId}:
     $ref: ./paths/order_by_id.yaml
-  /healthz:
+  /health:
     $ref: ./paths/health.yaml
-  /readyz:
+  /ready:
     $ref: ./paths/readiness.yaml

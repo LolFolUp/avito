@@ -47,7 +47,7 @@ func (UnimplementedHandler) GetRestaurantMenu(ctx context.Context, params GetRes
 //
 // Проверить liveness процесса.
 //
-// GET /healthz
+// GET /health
 func (UnimplementedHandler) Health(ctx context.Context) (r *HealthStatus, _ error) {
 	return r, ht.ErrNotImplemented
 }
@@ -65,7 +65,7 @@ func (UnimplementedHandler) ListRestaurants(ctx context.Context) (r ListRestaura
 //
 // Проверить готовность сервиса.
 //
-// GET /readyz
+// GET /ready
 func (UnimplementedHandler) Readiness(ctx context.Context) (r ReadinessRes, _ error) {
 	return r, ht.ErrNotImplemented
 }

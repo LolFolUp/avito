@@ -219,9 +219,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
-			case 'h': // Prefix: "healthz"
+			case 'h': // Prefix: "health"
 
-				if l := len("healthz"); len(elem) >= l && elem[0:l] == "healthz" {
+				if l := len("health"); len(elem) >= l && elem[0:l] == "health" {
 					elem = elem[l:]
 				} else {
 					break
@@ -244,9 +244,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-			case 'r': // Prefix: "readyz"
+			case 'r': // Prefix: "ready"
 
-				if l := len("readyz"); len(elem) >= l && elem[0:l] == "readyz" {
+				if l := len("ready"); len(elem) >= l && elem[0:l] == "ready" {
 					elem = elem[l:]
 				} else {
 					break
@@ -517,9 +517,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				}
 
-			case 'h': // Prefix: "healthz"
+			case 'h': // Prefix: "health"
 
-				if l := len("healthz"); len(elem) >= l && elem[0:l] == "healthz" {
+				if l := len("health"); len(elem) >= l && elem[0:l] == "health" {
 					elem = elem[l:]
 				} else {
 					break
@@ -533,7 +533,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						r.summary = "Проверить liveness процесса"
 						r.operationID = "health"
 						r.operationGroup = ""
-						r.pathPattern = "/healthz"
+						r.pathPattern = "/health"
 						r.args = args
 						r.count = 0
 						return r, true
@@ -542,9 +542,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					}
 				}
 
-			case 'r': // Prefix: "readyz"
+			case 'r': // Prefix: "ready"
 
-				if l := len("readyz"); len(elem) >= l && elem[0:l] == "readyz" {
+				if l := len("ready"); len(elem) >= l && elem[0:l] == "ready" {
 					elem = elem[l:]
 				} else {
 					break
@@ -558,7 +558,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						r.summary = "Проверить готовность сервиса"
 						r.operationID = "readiness"
 						r.operationGroup = ""
-						r.pathPattern = "/readyz"
+						r.pathPattern = "/ready"
 						r.args = args
 						r.count = 0
 						return r, true

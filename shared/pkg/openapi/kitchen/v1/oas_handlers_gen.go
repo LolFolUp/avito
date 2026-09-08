@@ -287,7 +287,7 @@ func (s *Server) handleGetRestaurantMenuRequest(args [1]string, argsEscaped bool
 //
 // Проверить liveness процесса.
 //
-// GET /healthz
+// GET /health
 func (s *Server) handleHealthRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
@@ -417,7 +417,7 @@ func (s *Server) handleListRestaurantsRequest(args [0]string, argsEscaped bool, 
 //
 // Проверить готовность сервиса.
 //
-// GET /readyz
+// GET /ready
 func (s *Server) handleReadinessRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
