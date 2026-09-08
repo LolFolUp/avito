@@ -5,7 +5,7 @@ vars:
   RESTAURANT_DATABASE_URL: '{{default "postgres://restaurant:restaurant@localhost:15433/restaurant?sslmode=disable" .RESTAURANT_DATABASE_URL}}'
   # golangci-lint не добавлен в go.mod намеренно: он тянет директиву go на 1.26,
   # а образы сборки закреплены на golang:1.25.10-alpine. Версия зафиксирована здесь.
-  GOLANGCI_LINT_VERSION: v2.6.2
+  GOLANGCI_LINT_VERSION: v2.9.0
 
 tasks:
   gen:
