@@ -1,0 +1,99 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  default: standard
+  enable:
+    # Ошибки, которые дороже всего стоят в этом проекте: потерянный error,
+    # неполный switch по статусу заказа, запрос без context.
+    - bodyclose
+    - errorlint
+    - exhaustive
+    - gocritic
+    - misspell
+    - nilerr
+    - noctx
+    - predeclared
+    - revive
+    - unconvert
+    - unparam
+    - wastedassign
+    - whitespace
+
+  settings:
+    errcheck:
+      check-type-assertions: true
+
+    exhaustive:
+      # Switch, отображающий домен в транспорт (errs.Kind, codes.Code, proto-статусы),
+      # осознанно покрывает не все варианты и закрывается default. Требуем полноты
+      # только там, где default не написан: для машины состояний заказа пропущенная
+      # ветка означает молча записанный пустой статус.
+      default-signifies-exhaustive: true
+
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - performance
+      disabled-checks:
+        # Модели и record передаются между слоями по значению осознанно: копия
+        # заказа неизменяема и не разделяется между конвертерами.
+        - hugeParam
+
+    revive:
+      rules:
+        - name: context-as-argument
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: range
+        - name: receiver-naming
+        - name: superfluous-else
+        - name: time-naming
+        - name: unreachable-code
+        - name: var-declaration
+
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - std-error-handling
+    paths:
+      # Сгенерированный код: ogen, protoc-gen-go, mockgen.
+      - shared/pkg/openapi
+      - shared/pkg/proto
+      - .*/mocks/.*
+    rules:
+      - path: _test\.go
+        linters:
+          - bodyclose
+          - errcheck
+          - noctx
+          - unparam
+      # Слушающий сокет открывается один раз при старте процесса, отменять его
+      # через context нечем: за остановку отвечает graceful shutdown сервера.
+      - path: pkg/app/
+        linters:
+          - noctx
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/talense-tasks/backend-trainee-assignment-autumn-2026-flow-2-lolfolup-0eb52e46
+
+  exclusions:
+    generated: lax
+    paths:
+      - shared/pkg/openapi
+      - shared/pkg/proto
+      - .*/mocks/.*
