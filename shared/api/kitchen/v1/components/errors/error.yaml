@@ -31,8 +31,3 @@ properties:
   request_id:
     type: string
     description: Идентификатор запроса для диагностики
-  items:
-    type: array
-    description: Детали конфликтных элементов меню
-    items:
-      $ref: ./error_item.yaml

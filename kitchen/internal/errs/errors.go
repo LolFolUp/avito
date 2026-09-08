@@ -9,7 +9,6 @@ type Error struct {
 	Kind    Kind
 	Code    string
 	Message string
-	Details any
 	cause   error
 }
 
@@ -25,8 +24,8 @@ func (e *Error) Unwrap() error {
 	return e.cause
 }
 
-func New(kind Kind, code, message string, details any) error {
-	return &Error{Kind: kind, Code: code, Message: message, Details: details}
+func New(kind Kind, code, message string) error {
+	return &Error{Kind: kind, Code: code, Message: message}
 }
 
 func Wrap(kind Kind, code, message string, cause error) error {
@@ -34,19 +33,19 @@ func Wrap(kind Kind, code, message string, cause error) error {
 }
 
 func InvalidArgument(message string) error {
-	return New(KindInvalidArgument, CodeInvalidArgument, message, nil)
+	return New(KindInvalidArgument, CodeInvalidArgument, message)
 }
 
 func NotFound(resource string) error {
-	return New(KindNotFound, CodeNotFound, resource+" not found", nil)
+	return New(KindNotFound, CodeNotFound, resource+" not found")
 }
 
-func FailedPrecondition(code, message string, details any) error {
-	return New(KindFailedPrecondition, code, message, details)
+func FailedPrecondition(code, message string) error {
+	return New(KindFailedPrecondition, code, message)
 }
 
 func AlreadyExists(resource string) error {
-	return New(KindAlreadyExists, CodeAlreadyExists, resource+" already exists", nil)
+	return New(KindAlreadyExists, CodeAlreadyExists, resource+" already exists")
 }
 
 func Unavailable(operation string, cause error) error {

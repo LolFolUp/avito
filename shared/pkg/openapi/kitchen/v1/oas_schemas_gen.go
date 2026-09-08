@@ -144,8 +144,6 @@ type Error struct {
 	Instance OptString `json:"instance"`
 	// Идентификатор запроса для диагностики.
 	RequestID OptString `json:"request_id"`
-	// Детали конфликтных элементов меню.
-	Items []ErrorItem `json:"items"`
 }
 
 // GetType returns the value of Type.
@@ -183,11 +181,6 @@ func (s *Error) GetRequestID() OptString {
 	return s.RequestID
 }
 
-// GetItems returns the value of Items.
-func (s *Error) GetItems() []ErrorItem {
-	return s.Items
-}
-
 // SetType sets the value of Type.
 func (s *Error) SetType(val url.URL) {
 	s.Type = val
@@ -223,94 +216,8 @@ func (s *Error) SetRequestID(val OptString) {
 	s.RequestID = val
 }
 
-// SetItems sets the value of Items.
-func (s *Error) SetItems(val []ErrorItem) {
-	s.Items = val
-}
-
 func (*Error) listRestaurantsRes() {}
 func (*Error) readinessRes()       {}
-
-// Ref: #
-type ErrorItem struct {
-	Code              string    `json:"code"`
-	Field             OptString `json:"field"`
-	MenuItemID        OptUUID   `json:"menu_item_id"`
-	RequestedVersion  OptInt64  `json:"requested_version"`
-	CurrentVersion    OptInt64  `json:"current_version"`
-	IsAvailable       OptBool   `json:"is_available"`
-	CurrentPriceMinor OptInt64  `json:"current_price_minor"`
-}
-
-// GetCode returns the value of Code.
-func (s *ErrorItem) GetCode() string {
-	return s.Code
-}
-
-// GetField returns the value of Field.
-func (s *ErrorItem) GetField() OptString {
-	return s.Field
-}
-
-// GetMenuItemID returns the value of MenuItemID.
-func (s *ErrorItem) GetMenuItemID() OptUUID {
-	return s.MenuItemID
-}
-
-// GetRequestedVersion returns the value of RequestedVersion.
-func (s *ErrorItem) GetRequestedVersion() OptInt64 {
-	return s.RequestedVersion
-}
-
-// GetCurrentVersion returns the value of CurrentVersion.
-func (s *ErrorItem) GetCurrentVersion() OptInt64 {
-	return s.CurrentVersion
-}
-
-// GetIsAvailable returns the value of IsAvailable.
-func (s *ErrorItem) GetIsAvailable() OptBool {
-	return s.IsAvailable
-}
-
-// GetCurrentPriceMinor returns the value of CurrentPriceMinor.
-func (s *ErrorItem) GetCurrentPriceMinor() OptInt64 {
-	return s.CurrentPriceMinor
-}
-
-// SetCode sets the value of Code.
-func (s *ErrorItem) SetCode(val string) {
-	s.Code = val
-}
-
-// SetField sets the value of Field.
-func (s *ErrorItem) SetField(val OptString) {
-	s.Field = val
-}
-
-// SetMenuItemID sets the value of MenuItemID.
-func (s *ErrorItem) SetMenuItemID(val OptUUID) {
-	s.MenuItemID = val
-}
-
-// SetRequestedVersion sets the value of RequestedVersion.
-func (s *ErrorItem) SetRequestedVersion(val OptInt64) {
-	s.RequestedVersion = val
-}
-
-// SetCurrentVersion sets the value of CurrentVersion.
-func (s *ErrorItem) SetCurrentVersion(val OptInt64) {
-	s.CurrentVersion = val
-}
-
-// SetIsAvailable sets the value of IsAvailable.
-func (s *ErrorItem) SetIsAvailable(val OptBool) {
-	s.IsAvailable = val
-}
-
-// SetCurrentPriceMinor sets the value of CurrentPriceMinor.
-func (s *ErrorItem) SetCurrentPriceMinor(val OptInt64) {
-	s.CurrentPriceMinor = val
-}
 
 type GetOrderBadRequest Error
 
@@ -514,98 +421,6 @@ func (s *MenuItem) SetVersion(val int64) {
 	s.Version = val
 }
 
-// NewOptBool returns new OptBool with value set to v.
-func NewOptBool(v bool) OptBool {
-	return OptBool{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptBool is optional bool.
-type OptBool struct {
-	Value bool
-	Set   bool
-}
-
-// IsSet returns true if OptBool was set.
-func (o OptBool) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptBool) Reset() {
-	var v bool
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptBool) SetTo(v bool) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptBool) Get() (v bool, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptBool) Or(d bool) bool {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptInt64 returns new OptInt64 with value set to v.
-func NewOptInt64(v int64) OptInt64 {
-	return OptInt64{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptInt64 is optional int64.
-type OptInt64 struct {
-	Value int64
-	Set   bool
-}
-
-// IsSet returns true if OptInt64 was set.
-func (o OptInt64) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptInt64) Reset() {
-	var v int64
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptInt64) SetTo(v int64) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptInt64) Get() (v int64, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptInt64) Or(d int64) int64 {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
 	return OptString{
@@ -646,52 +461,6 @@ func (o OptString) Get() (v string, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptString) Or(d string) string {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptUUID returns new OptUUID with value set to v.
-func NewOptUUID(v uuid.UUID) OptUUID {
-	return OptUUID{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptUUID is optional uuid.UUID.
-type OptUUID struct {
-	Value uuid.UUID
-	Set   bool
-}
-
-// IsSet returns true if OptUUID was set.
-func (o OptUUID) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptUUID) Reset() {
-	var v uuid.UUID
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptUUID) SetTo(v uuid.UUID) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptUUID) Get() (v uuid.UUID, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 	if v, ok := o.Get(); ok {
 		return v
 	}

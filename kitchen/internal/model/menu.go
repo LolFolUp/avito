@@ -36,21 +36,3 @@ type RestaurantMenu struct {
 	// Items — актуальные позиции, возвращённые restaurant-demo.
 	Items []MenuItem
 }
-
-// MenuItemConflict содержит сведения о позиции, изменившейся после просмотра меню.
-type MenuItemConflict struct {
-	// MenuItemID — идентификатор конфликтующей позиции.
-	MenuItemID uuid.UUID
-
-	// RequestedVersion — версия, присланная клиентом.
-	RequestedVersion int64
-
-	// CurrentVersion — актуальная версия позиции в restaurant-demo.
-	CurrentVersion int64
-
-	// IsAvailable — актуальная доступность позиции.
-	IsAvailable bool
-
-	// CurrentPriceMinor — актуальная цена позиции в минимальных единицах валюты.
-	CurrentPriceMinor int64
-}

@@ -49,14 +49,12 @@ func (s *Service) UpdateStatus(
 			return errs.FailedPrecondition(
 				errs.CodeStatusConflict,
 				"order status differs from expected status",
-				nil,
 			)
 		}
 		if !canTransition(current.Status, newStatus) {
 			return errs.FailedPrecondition(
 				errs.CodeInvalidStatusTransition,
 				"order status transition is not allowed",
-				nil,
 			)
 		}
 

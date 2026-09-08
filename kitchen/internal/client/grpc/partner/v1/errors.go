@@ -19,7 +19,7 @@ func clientError(operation string, err error) error {
 	case codes.NotFound:
 		return errs.NotFound("restaurant resource")
 	case codes.FailedPrecondition:
-		return errs.FailedPrecondition(errs.CodeMenuChanged, grpcStatus.Message(), nil)
+		return errs.FailedPrecondition(errs.CodeMenuChanged, grpcStatus.Message())
 	case codes.AlreadyExists:
 		return errs.AlreadyExists("restaurant order")
 	case codes.Unavailable, codes.DeadlineExceeded:

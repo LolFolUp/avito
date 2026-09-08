@@ -102,38 +102,20 @@ func Error(err error, statusCode int) *openapi.Error {
 	code := errs.CodeInternal
 	title := "Internal server error"
 	detail := "an unexpected error occurred"
-	var details any
 
 	if domainErr, ok := errs.As(err); ok {
 		code = domainErr.Code
 		title = problemTitle(domainErr.Kind)
 		detail = domainErr.Message
-		details = domainErr.Details
 	}
 
-	problem := &openapi.Error{
+	return &openapi.Error{
 		Type:   url.URL{Scheme: "https", Host: "avito-kitchen.local", Path: "/errors/" + strings.ToLower(code)},
 		Title:  title,
 		Status: statusCode,
 		Code:   code,
 		Detail: openapi.NewOptString(detail),
 	}
-
-	if conflicts, ok := details.([]model.MenuItemConflict); ok {
-		problem.Items = make([]openapi.ErrorItem, 0, len(conflicts))
-		for _, conflict := range conflicts {
-			problem.Items = append(problem.Items, openapi.ErrorItem{
-				Code:              errs.CodeMenuChanged,
-				MenuItemID:        openapi.NewOptUUID(conflict.MenuItemID),
-				RequestedVersion:  openapi.NewOptInt64(conflict.RequestedVersion),
-				CurrentVersion:    openapi.NewOptInt64(conflict.CurrentVersion),
-				IsAvailable:       openapi.NewOptBool(conflict.IsAvailable),
-				CurrentPriceMinor: openapi.NewOptInt64(conflict.CurrentPriceMinor),
-			})
-		}
-	}
-
-	return problem
 }
 
 func problemTitle(kind errs.Kind) string {

@@ -1,18 +1,15 @@
-description: Меню изменилось или ресторан не может принять заказ
+description: |
+  Меню изменилось или ресторан не может принять заказ.
+
+  Ответ сообщает только факт конфликта: разбивки по конкретным позициям
+  в MVP нет. Клиент перечитывает меню и пересобирает корзину целиком.
 content:
   application/problem+json:
     schema:
       $ref: ../errors/error.yaml
     example:
-      type: https://avito.kitchen/problems/menu-changed
-      title: Conflict
+      type: https://avito-kitchen.local/errors/menu_changed
+      title: Request cannot be completed
       status: 409
       code: MENU_CHANGED
-      detail: One or more menu items have changed
-      items:
-        - code: MENU_ITEM_CHANGED
-          menu_item_id: 00000000-0000-0000-0000-000000000002
-          requested_version: 1
-          current_version: 2
-          is_available: true
-          current_price_minor: 65000
+      detail: one or more menu items have changed or are unavailable

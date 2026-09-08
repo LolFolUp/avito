@@ -41,7 +41,7 @@ func TestCreateReturnsRestaurantMenuConflictBeforeKitchenTransaction(t *testing.
 	}, nil)
 	partner.EXPECT().CreateOrder(ctx, gomock.Any(), input).Return(
 		model.Order{},
-		errs.FailedPrecondition(errs.CodeMenuChanged, "menu changed", nil),
+		errs.FailedPrecondition(errs.CodeMenuChanged, "menu changed"),
 	)
 
 	_, err := service.Create(ctx, input)

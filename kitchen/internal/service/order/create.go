@@ -26,7 +26,6 @@ func (s *Service) Create(ctx context.Context, input model.CreateOrder) (model.Or
 		return model.Order{}, errs.FailedPrecondition(
 			errs.CodeRestaurantNotAccepting,
 			"restaurant is not accepting orders",
-			nil,
 		)
 	}
 
