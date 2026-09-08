@@ -23,6 +23,7 @@ type Config struct {
 	HTTPAddress          string
 	GRPCAddress          string
 	RestaurantGRPCRoutes map[uuid.UUID]string
+	RestaurantAPIKeys    map[uuid.UUID]string
 	PingTimeout          time.Duration
 	ShutdownTimeout      time.Duration
 }
@@ -34,12 +35,27 @@ func Load() (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
+	restaurantAPIKeys, err := parseRestaurantAPIKeys(os.Getenv("RESTAURANT_API_KEYS"))
+	if err != nil {
+		return Config{}, err
+	}
+	for restaurantID := range restaurantRoutes {
+		if _, exists := restaurantAPIKeys[restaurantID]; !exists {
+			return Config{}, fmt.Errorf("API key for restaurant %s is required", restaurantID)
+		}
+	}
+	for restaurantID := range restaurantAPIKeys {
+		if _, exists := restaurantRoutes[restaurantID]; !exists {
+			return Config{}, fmt.Errorf("gRPC route for restaurant %s is required", restaurantID)
+		}
+	}
 
 	cfg := Config{
 		DatabaseURL:          envOrDefault("DATABASE_URL", defaultDatabaseURL),
 		HTTPAddress:          envOrDefault("KITCHEN_HTTP_ADDR", defaultHTTPAddress),
 		GRPCAddress:          envOrDefault("KITCHEN_GRPC_ADDR", defaultGRPCAddress),
 		RestaurantGRPCRoutes: restaurantRoutes,
+		RestaurantAPIKeys:    restaurantAPIKeys,
 		PingTimeout:          defaultPingTimeout,
 		ShutdownTimeout:      defaultShutdownTimeout,
 	}
@@ -77,6 +93,38 @@ func parseRestaurantRoutes(value string) (map[uuid.UUID]string, error) {
 		return nil, fmt.Errorf("RESTAURANT_GRPC_ROUTES is required")
 	}
 	return routes, nil
+}
+
+func parseRestaurantAPIKeys(value string) (map[uuid.UUID]string, error) {
+	if strings.TrimSpace(value) == "" {
+		return nil, fmt.Errorf("RESTAURANT_API_KEYS is required")
+	}
+
+	keys := make(map[uuid.UUID]string)
+	usedKeys := make(map[string]struct{})
+	for _, rawEntry := range strings.Split(value, ",") {
+		parts := strings.SplitN(strings.TrimSpace(rawEntry), "=", 2)
+		if len(parts) != 2 || strings.TrimSpace(parts[1]) == "" {
+			return nil, fmt.Errorf("invalid RESTAURANT_API_KEYS entry")
+		}
+
+		restaurantID, err := uuid.Parse(strings.TrimSpace(parts[0]))
+		if err != nil {
+			return nil, fmt.Errorf("parse RESTAURANT_API_KEYS restaurant id: %w", err)
+		}
+		if _, exists := keys[restaurantID]; exists {
+			return nil, fmt.Errorf("duplicate API key configuration for restaurant %s", restaurantID)
+		}
+
+		apiKey := strings.TrimSpace(parts[1])
+		if _, exists := usedKeys[apiKey]; exists {
+			return nil, fmt.Errorf("restaurant API keys must be unique")
+		}
+		keys[restaurantID] = apiKey
+		usedKeys[apiKey] = struct{}{}
+	}
+
+	return keys, nil
 }
 
 func envOrDefault(name, fallback string) string {

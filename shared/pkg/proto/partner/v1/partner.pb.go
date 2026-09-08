@@ -237,7 +237,7 @@ func (x *GetMenuRequest) GetRestaurantId() string {
 type GetMenuResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Активные позиции меню. Временно недоступные позиции тоже возвращаются.
-	Items         []*MenuItem `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty"`
+	Items         []*MenuItem `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -991,7 +991,7 @@ const file_partner_v1_partner_proto_rawDesc = "" +
 	"\x0eGetMenuRequest\x12#\n" +
 	"\rrestaurant_id\x18\x01 \x01(\tR\frestaurantId\"=\n" +
 	"\x0fGetMenuResponse\x12*\n" +
-	"\x05items\x18\x03 \x03(\v2\x14.partner.v1.MenuItemR\x05items\"\x84\x01\n" +
+	"\x05items\x18\x01 \x03(\v2\x14.partner.v1.MenuItemR\x05items\"\x84\x01\n" +
 	"\x19CreateRestaurantOrderItem\x12 \n" +
 	"\fmenu_item_id\x18\x01 \x01(\tR\n" +
 	"menuItemId\x12\x1a\n" +

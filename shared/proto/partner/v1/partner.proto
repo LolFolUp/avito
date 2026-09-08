@@ -81,9 +81,8 @@ message GetMenuRequest {
 
 // GetMenuResponse содержит актуальное меню ресторана.
 message GetMenuResponse {
-
   // Активные позиции меню. Временно недоступные позиции тоже возвращаются.
-  repeated MenuItem items = 3;
+  repeated MenuItem items = 1;
 }
 
 // CreateRestaurantOrderItem описывает выбранную клиентом позицию.

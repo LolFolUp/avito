@@ -22,6 +22,7 @@ type Config struct {
 	DatabaseURL       string
 	GRPCAddress       string
 	KitchenGRPCTarget string
+	KitchenAPIKey     string
 	RestaurantID      uuid.UUID
 	PingTimeout       time.Duration
 	ShutdownTimeout   time.Duration
@@ -37,6 +38,7 @@ func Load() (Config, error) {
 		DatabaseURL:       envOrDefault("DATABASE_URL", defaultDatabaseURL),
 		GRPCAddress:       envOrDefault("RESTAURANT_GRPC_ADDR", defaultGRPCAddress),
 		KitchenGRPCTarget: envOrDefault("KITCHEN_GRPC_TARGET", defaultKitchenGRPCTarget),
+		KitchenAPIKey:     strings.TrimSpace(os.Getenv("KITCHEN_API_KEY")),
 		RestaurantID:      restaurantID,
 		PingTimeout:       defaultPingTimeout,
 		ShutdownTimeout:   defaultShutdownTimeout,
@@ -50,6 +52,9 @@ func Load() (Config, error) {
 	}
 	if strings.TrimSpace(cfg.KitchenGRPCTarget) == "" {
 		return Config{}, fmt.Errorf("KITCHEN_GRPC_TARGET is required")
+	}
+	if cfg.KitchenAPIKey == "" {
+		return Config{}, fmt.Errorf("KITCHEN_API_KEY is required")
 	}
 
 	return cfg, nil

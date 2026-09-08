@@ -54,17 +54,17 @@ func TestRepositoryUsesTransactionFromContext(t *testing.T) {
 
 	rollback := errors.New("force rollback")
 	err = txManager.Do(ctx, func(txCtx context.Context) error {
+		// CreateOrder записывает позиции заказа сам, отдельного вызова нет:
+		// так их нельзя забыть вставить в одной транзакции с заказом.
 		if err := repository.CreateOrder(txCtx, model.Order{
 			ID: orderID, RestaurantID: restaurantID, Status: model.OrderStatusAccepted,
 			CustomerName: "Alice", CustomerPhone: "+79990000000", DeliveryAddress: "Moscow",
+			Items: []model.OrderItem{{
+				OrderID: orderID, MenuItemID: menuItemID,
+				Name: "Item", UnitPriceMinor: 100, Quantity: 1,
+			}},
 			TotalPrice: 100, Currency: "RUB",
 		}); err != nil {
-			return err
-		}
-		if err := repository.CreateOrderItems(txCtx, []model.OrderItem{{
-			OrderID: orderID, MenuItemID: menuItemID,
-			Name: "Item", UnitPriceMinor: 100, Quantity: 1,
-		}}); err != nil {
 			return err
 		}
 		if err := repository.CreateOrderStatusHistory(txCtx, model.OrderStatusHistory{

@@ -70,7 +70,10 @@ func New(ctx context.Context, cfg config.Config, logger *slog.Logger) (*App, err
 	}
 
 	repository := restaurantrepo.New(pool, trmpgx.DefaultCtxGetter)
-	kitchenClient := kitchenclient.New(partnerpb.NewKitchenPartnerServiceClient(kitchenConnection))
+	kitchenClient := kitchenclient.New(
+		partnerpb.NewKitchenPartnerServiceClient(kitchenConnection),
+		cfg.KitchenAPIKey,
+	)
 	service := restaurant.New(repository, txManager, kitchenClient, logger)
 	grpcServer := grpc.NewServer()
 	partnerpb.RegisterRestaurantServiceServer(

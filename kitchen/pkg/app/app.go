@@ -82,7 +82,9 @@ func New(ctx context.Context, cfg config.Config, logger *slog.Logger) (*App, err
 		return nil, fmt.Errorf("create HTTP handler: %w", err)
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(partnerapi.AuthUnaryInterceptor(cfg.RestaurantAPIKeys)),
+	)
 	partnerpb.RegisterKitchenPartnerServiceServer(grpcServer, partnerapi.New(orderService, logger))
 	grpcHealth := health.NewServer()
 	healthpb.RegisterHealthServer(grpcServer, grpcHealth)
